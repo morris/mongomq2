@@ -53,7 +53,7 @@ const mongoClient = new MongoClient("mongodb://localhost:27017");
 await mongoClient.connect();
 
 interface MyMessage {
-  _id: ObjectId;
+  _id?: ObjectId;
   type: "hello" | "world";
 }
 
@@ -187,3 +187,5 @@ consumer.start();
   - `err.mq2` will contain the message being processed, if any.
 - Always `.close()` MongoMQ2 clients on shutdown (before closing the MongoClient).
   - MongoMQ2 will try to finish open tasks with best effort.
+- MongoDB change streams are only supported for MongoDB replica set.
+  - To start a one-node replica set locally e.g. for testing, see `docker-compose.yml`
