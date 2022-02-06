@@ -7,6 +7,7 @@
 MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into
 **general-purpose message queues** or event logs,
 without additional server components.
+
 At a slight expense of throughput compared to specialized
 message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
 
@@ -36,6 +37,8 @@ message- and event-driven architectures,
 especially if you're already on MongoDB
 and don't want to introduce additional system components.
 
+### [Documentation](https://morris.github.io/mongomq2)
+
 ## Installation
 
 ```sh
@@ -48,7 +51,7 @@ npm install mongomq2
 import { MongoClient } from "mongodb";
 import { Consumer, Publisher, Subscriber } from "mongomq2";
 
-const mongoClient = new MongoClient("http://localhost:27017");
+const mongoClient = new MongoClient("mongodb://localhost:27017");
 await mongoClient.connect();
 
 interface MyMessage {
@@ -97,7 +100,7 @@ await publisher.publish({ type: "hello" });
 - Publishes the given message to the database immediately.
 - Message insertion is acknowledged, or an error is thrown.
 
-Useful for:
+#### Use Cases
 
 - Critical messages and events
 - Job ingestion
@@ -116,7 +119,7 @@ publisher.publish({ type: "hello" });
 - By default publishes messages with best effort (`majority` write concern, retries)
 - Can be set to "fire & forget" mode by passing `bestEffort: false` (no write concern, no retries)
 
-Useful for:
+#### Use Cases
 
 - Uncritical messages
 - Uncritical notifications
@@ -147,7 +150,7 @@ subscriber.subscribe((message) => console.log(message), {
   - so you'll usually want only one `Subscriber` instance,
   - and multiple `.subscribe(...)` calls with local filters.
 
-Useful for:
+#### Use Cases
 
 - Real-time notifications
 - Cache invalidation
@@ -172,7 +175,7 @@ consumer.start();
 - Messages are consumed at-least-once per `group`.
 - Configurable visibility timeout, visibility delay, maximum number of retries, etc.
 
-Useful for:
+#### Use Cases
 
 - Message queues
 - Job queues
