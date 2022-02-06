@@ -1,21 +1,20 @@
-import { Collection, Filter, MongoClient, ObjectId } from "mongodb";
+import { Collection, Filter, MongoClient } from "mongodb";
 import { BatchPublisher, BatchPublisherOptions } from "../src/BatchPublisher";
 import { Consumer, ConsumerCallback, ConsumerOptions } from "../src/Consumer";
 import "../src/index";
 import { Publisher, PublisherOptions } from "../src/Publisher";
 import { Subscriber, SubscriberOptions } from "../src/Subscriber";
+import { WithOptionalObjectId } from "../src/types";
 
 export type TestMessage = NumericTestMessage | TextTestMessage;
 
-export interface NumericTestMessage {
-  _id: ObjectId;
+export interface NumericTestMessage extends WithOptionalObjectId {
   type: "numeric";
   value: number;
   key?: string;
 }
 
-export interface TextTestMessage {
-  _id: ObjectId;
+export interface TextTestMessage extends WithOptionalObjectId {
   type: "text";
   value: string;
   key?: string;
@@ -115,14 +114,14 @@ export class TestUtil {
     return subscriber;
   }
 
-  createConsumer<TEvent extends TestMessage>(
-    callback: ConsumerCallback<TEvent>,
-    options?: ConsumerOptions<TEvent>
+  createConsumer<TMessage extends TestMessage>(
+    callback: ConsumerCallback<TMessage>,
+    options?: ConsumerOptions<TMessage>
   ) {
-    const consumer = new Consumer(
-      this.collection,
-      callback as ConsumerCallback<TestMessage>,
-      options as ConsumerOptions<TestMessage>
+    const consumer = new Consumer<TMessage>(
+      this.collection as unknown as Collection<TMessage>,
+      callback,
+      options
     );
 
     consumer.on("error", (err) => {
@@ -132,7 +131,7 @@ export class TestUtil {
 
     consumer.start();
 
-    this.consumers.push(consumer);
+    this.consumers.push(consumer as unknown as Consumer<TestMessage>);
 
     return consumer;
   }

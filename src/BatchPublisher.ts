@@ -3,7 +3,7 @@ import {
   BulkWriteOptions,
   Collection,
   MongoBulkWriteError,
-  OptionalId,
+  OptionalUnlessRequiredId,
 } from "mongodb";
 import { Timeout } from "./Timeout";
 import { toError } from "./toError";
@@ -44,7 +44,7 @@ export class BatchPublisher<TMessage> extends EventEmitter {
   protected delayMs: number;
   protected bestEffort: boolean;
   protected bulkWriteOptions: BulkWriteOptions;
-  protected queue: OptionalId<TMessage>[] = [];
+  protected queue: OptionalUnlessRequiredId<TMessage>[] = [];
   protected flushTimeout = new Timeout(() => this.flush());
   protected closed = false;
 
@@ -69,7 +69,7 @@ export class BatchPublisher<TMessage> extends EventEmitter {
    * Publish a message after a delay.
    * See `options.bestEffort` for behavior.
    */
-  publish(message: OptionalId<TMessage>) {
+  publish(message: OptionalUnlessRequiredId<TMessage>) {
     if (this.closed) {
       if (!this.bestEffort) return;
 

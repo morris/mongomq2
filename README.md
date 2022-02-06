@@ -40,7 +40,7 @@ and don't want to introduce additional system components.
 ## Installation
 
 ```sh
-npm install mongomq2
+npm install mongomq2 mongodb
 ```
 
 ## Quick Start

@@ -3,6 +3,7 @@ import { Collection, Filter, ObjectId, UpdateFilter, WithId } from "mongodb";
 import { PromiseTracker } from "./PromiseTracker";
 import { Timeout } from "./Timeout";
 import { toError } from "./toError";
+import { WithOptionalObjectId } from "./types";
 
 export interface ConsumerOptions<TMessage> {
   /**
@@ -54,9 +55,13 @@ export interface ConsumerOptions<TMessage> {
   pollMs?: number;
 }
 
-export type ConsumerCallback<TMessage> = (message: TMessage) => unknown;
+export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
+  message: WithId<TMessage>
+) => unknown;
 
-export class Consumer<TMessage> extends EventEmitter {
+export class Consumer<
+  TMessage extends WithOptionalObjectId
+> extends EventEmitter {
   protected collection: Collection<TMessage>;
   protected filter: Filter<TMessage>;
   protected group: string;

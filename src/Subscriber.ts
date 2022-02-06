@@ -86,7 +86,7 @@ export class Subscriber<TMessage> extends EventEmitter {
   protected init() {
     if (this.changeStream) return;
 
-    type WatchResult<TEvent> = TEvent & {
+    type WatchResult<TMessage> = TMessage & {
       _oid?: ObjectId;
     };
 

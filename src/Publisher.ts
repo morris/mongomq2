@@ -2,7 +2,7 @@ import {
   Collection,
   InsertOneOptions,
   MongoServerError,
-  OptionalId,
+  OptionalUnlessRequiredId,
 } from "mongodb";
 import { PromiseTracker } from "./PromiseTracker";
 import { toError } from "./toError";
@@ -28,7 +28,7 @@ export class Publisher<TMessage> {
     };
   }
 
-  async publish(message: OptionalId<TMessage>) {
+  async publish(message: OptionalUnlessRequiredId<TMessage>) {
     if (this.closed) throw new Error("Publisher closed");
 
     try {
