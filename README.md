@@ -37,8 +37,6 @@ message- and event-driven architectures,
 especially if you're already on MongoDB
 and don't want to introduce additional system components.
 
-### [Documentation](https://morris.github.io/mongomq2)
-
 ## Installation
 
 ```sh
