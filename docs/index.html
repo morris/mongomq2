@@ -1,0 +1,151 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>mongomq2</title><meta name="description" content="Documentation for mongomq2"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">mongomq2</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>mongomq2</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#mongomq2" id="mongomq2" style="color: inherit; text-decoration: none;">
+  <h1>MongoMQ2</h1>
+</a>
+<p><a href="https://www.npmjs.com/package/mongomq2"><img src="https://img.shields.io/npm/v/mongomq2?style=flat-square" alt="NPM version"></a>
+<a href="https://github.com/morris/mongomq2/actions"><img src="https://img.shields.io/github/workflow/status/morris/mongomq2/Pipeline?style=flat-square" alt="Build status"></a>
+<a href="https://app.codecov.io/gh/morris/mongomq2"><img src="https://img.shields.io/codecov/c/github/morris/mongomq2?style=flat-square&token=5GBOZPEJW0" alt="Coverage"></a></p>
+<p>MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into
+<strong>general-purpose message queues</strong> or event logs,
+without additional server components.
+At a slight expense of throughput compared to specialized
+message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:</p>
+<ul>
+<li>Persistent message/event logs in MongoDB collections.</li>
+<li>Real-time, fan-out, at-most-once delivery to <strong>subscribers</strong>.</li>
+<li>Isolated, acknowledged, at-least-once delivery to <strong>queue consumers</strong>.<ul>
+<li>Effectively exactly-once if consumer workloads are idempotent.</li>
+</ul>
+</li>
+<li>All the capabilities of regular MongoDB collections, e.g.<ul>
+<li>search indexes,</li>
+<li>unique indexes for message/event deduplication,</li>
+<li>aggregations,</li>
+<li>capped collections,</li>
+<li>sharding,</li>
+<li>and TTL indexes.</li>
+</ul>
+</li>
+<li>No chaining of queues required because subscribers and consumers can read from the same queue.</li>
+</ul>
+<p>There&#39;s more:</p>
+<ul>
+<li>Configurable number of retries</li>
+<li>Configurable visibility timeouts</li>
+<li>Configurable visibility delays</li>
+<li>Multiple isolated consumer groups on one queue</li>
+<li>Batch publishing of messages/events</li>
+</ul>
+<p>MongoMQ2 can be an effective and flexible building block for
+message- and event-driven architectures,
+especially if you&#39;re already on MongoDB
+and don&#39;t want to introduce additional system components.</p>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<pre><code class="language-sh"><span class="hl-0">npm install mongomq2</span>
+</code></pre>
+
+<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
+  <h2>Quick Start</h2>
+</a>
+<pre><code class="language-ts"><span class="hl-1">import</span><span class="hl-0"> { </span><span class="hl-2">MongoClient</span><span class="hl-0"> } </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&quot;mongodb&quot;</span><span class="hl-0">;</span><br/><span class="hl-1">import</span><span class="hl-0"> { </span><span class="hl-2">Consumer</span><span class="hl-0">, </span><span class="hl-2">Publisher</span><span class="hl-0">, </span><span class="hl-2">Subscriber</span><span class="hl-0"> } </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&quot;mongomq2&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">mongoClient</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">MongoClient</span><span class="hl-0">(</span><span class="hl-3">&quot;http://localhost:27017&quot;</span><span class="hl-0">);</span><br/><span class="hl-1">await</span><span class="hl-0"> </span><span class="hl-2">mongoClient</span><span class="hl-0">.</span><span class="hl-6">connect</span><span class="hl-0">();</span><br/><br/><span class="hl-4">interface</span><span class="hl-0"> </span><span class="hl-7">MyMessage</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-2">_id</span><span class="hl-0">: </span><span class="hl-7">ObjectId</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">type</span><span class="hl-0">: </span><span class="hl-3">&quot;hello&quot;</span><span class="hl-0"> | </span><span class="hl-3">&quot;world&quot;</span><span class="hl-0">;</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">messagesCollection</span><span class="hl-0"> = </span><span class="hl-2">mongoClient</span><span class="hl-0">.</span><span class="hl-6">db</span><span class="hl-0">().</span><span class="hl-6">collection</span><span class="hl-0">&lt;</span><span class="hl-7">MyMessage</span><span class="hl-0">&gt;(</span><span class="hl-3">&quot;messages&quot;</span><span class="hl-0">);</span><br/><br/><span class="hl-8">// Subscribe to (future) messages of type &quot;hello&quot;</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">subscriber</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Subscriber</span><span class="hl-0">(</span><span class="hl-2">messagesCollection</span><span class="hl-0">);</span><br/><br/><span class="hl-2">subscriber</span><span class="hl-0">.</span><span class="hl-6">subscribe</span><span class="hl-0">((</span><span class="hl-2">message</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-6">log</span><span class="hl-0">(</span><span class="hl-3">&quot;Received a hello!&quot;</span><span class="hl-0">), {</span><br/><span class="hl-0">  </span><span class="hl-2">filter:</span><span class="hl-0"> { </span><span class="hl-2">type:</span><span class="hl-0"> </span><span class="hl-3">&quot;hello&quot;</span><span class="hl-0"> },</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-8">// Consume messages (even past ones) of type &quot;world&quot;</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">consumer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Consumer</span><span class="hl-0">(</span><br/><span class="hl-0">  </span><span class="hl-2">messagesCollection</span><span class="hl-0">,</span><br/><span class="hl-0">  (</span><span class="hl-2">message</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-6">log</span><span class="hl-0">(</span><span class="hl-3">&quot;Saved a world!&quot;</span><span class="hl-0">),</span><br/><span class="hl-0">  { </span><span class="hl-2">filter:</span><span class="hl-0"> { </span><span class="hl-2">type:</span><span class="hl-0"> </span><span class="hl-3">&quot;world&quot;</span><span class="hl-0"> } }</span><br/><span class="hl-0">);</span><br/><br/><span class="hl-2">consumer</span><span class="hl-0">.</span><span class="hl-6">start</span><span class="hl-0">();</span><br/><br/><span class="hl-8">// Publish some messages</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">publisher</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Publisher</span><span class="hl-0">(</span><span class="hl-2">messagesCollection</span><span class="hl-0">);</span><br/><br/><span class="hl-1">await</span><span class="hl-0"> </span><span class="hl-2">publisher</span><span class="hl-0">.</span><span class="hl-6">publish</span><span class="hl-0">({ </span><span class="hl-2">type:</span><span class="hl-0"> </span><span class="hl-3">&quot;hello&quot;</span><span class="hl-0"> });</span><br/><span class="hl-1">await</span><span class="hl-0"> </span><span class="hl-2">publisher</span><span class="hl-0">.</span><span class="hl-6">publish</span><span class="hl-0">({ </span><span class="hl-2">type:</span><span class="hl-0"> </span><span class="hl-3">&quot;world&quot;</span><span class="hl-0"> });</span><br/><br/><span class="hl-8">// &gt; Received a hello! (per active subscriber)</span><br/><span class="hl-8">// &gt; Saved a world! (consumed exactly once by one consumer)</span>
+</code></pre>
+
+<a href="#synopsis" id="synopsis" style="color: inherit; text-decoration: none;">
+  <h2>Synopsis</h2>
+</a>
+
+<a href="#publisher" id="publisher" style="color: inherit; text-decoration: none;">
+  <h3>Publisher</h3>
+</a>
+<pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">publisher</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Publisher</span><span class="hl-0">(</span><span class="hl-2">collection</span><span class="hl-0">);</span><br/><br/><span class="hl-1">await</span><span class="hl-0"> </span><span class="hl-2">publisher</span><span class="hl-0">.</span><span class="hl-6">publish</span><span class="hl-0">({ </span><span class="hl-2">type:</span><span class="hl-0"> </span><span class="hl-3">&quot;hello&quot;</span><span class="hl-0"> });</span>
+</code></pre>
+<ul>
+<li>Publishes the given message to the database immediately.</li>
+<li>Message insertion is acknowledged, or an error is thrown.</li>
+</ul>
+<p>Useful for:</p>
+<ul>
+<li>Critical messages and events</li>
+<li>Job ingestion</li>
+<li>Commands</li>
+</ul>
+
+<a href="#batchpublisher" id="batchpublisher" style="color: inherit; text-decoration: none;">
+  <h3>BatchPublisher</h3>
+</a>
+<pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">publisher</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">BatchPublisher</span><span class="hl-0">(</span><span class="hl-2">collection</span><span class="hl-0">);</span><br/><br/><span class="hl-2">publisher</span><span class="hl-0">.</span><span class="hl-6">publish</span><span class="hl-0">({ </span><span class="hl-2">type:</span><span class="hl-0"> </span><span class="hl-3">&quot;hello&quot;</span><span class="hl-0"> });</span>
+</code></pre>
+<ul>
+<li>Queues the given message for publication in memory.</li>
+<li>Bulk inserts batched messages after a configurable delay.</li>
+<li>By default publishes messages with best effort (<code>majority</code> write concern, retries)</li>
+<li>Can be set to &quot;fire &amp; forget&quot; mode by passing <code>bestEffort: false</code> (no write concern, no retries)</li>
+</ul>
+<p>Useful for:</p>
+<ul>
+<li>Uncritical messages</li>
+<li>Uncritical notifications</li>
+</ul>
+
+<a href="#subscriber" id="subscriber" style="color: inherit; text-decoration: none;">
+  <h3>Subscriber</h3>
+</a>
+<pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">subscriber</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Subscriber</span><span class="hl-0">(</span><span class="hl-2">collection</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-2">filter:</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-8">/* optional global filter applied on change stream */</span><br/><span class="hl-0">  },</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-2">subscriber</span><span class="hl-0">.</span><span class="hl-6">subscribe</span><span class="hl-0">((</span><span class="hl-2">message</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-6">log</span><span class="hl-0">(</span><span class="hl-2">message</span><span class="hl-0">), {</span><br/><span class="hl-0">  </span><span class="hl-2">filter:</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-8">/* optional local filter applied in memory */</span><br/><span class="hl-0">  },</span><br/><span class="hl-0">});</span>
+</code></pre>
+<ul>
+<li>Subscribes to matching messages in the future.</li>
+<li>All active subscribers will receive all future matching messages.</li>
+<li>Messages are delivered at most once.</li>
+<li>Messages are delivered in database insertion order.</li>
+<li>Past messages are ignored.</li>
+<li>Each <code>Subscriber</code> instance creates one MongoDB change stream.<ul>
+<li>Change streams occupy one connection,</li>
+<li>so you&#39;ll usually want only one <code>Subscriber</code> instance,</li>
+<li>and multiple <code>.subscribe(...)</code> calls with local filters.</li>
+</ul>
+</li>
+</ul>
+<p>Useful for:</p>
+<ul>
+<li>Real-time notifications</li>
+<li>Cache invalidation</li>
+</ul>
+
+<a href="#consumer" id="consumer" style="color: inherit; text-decoration: none;">
+  <h3>Consumer</h3>
+</a>
+<pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">consumer</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">Consumer</span><span class="hl-0">(</span><span class="hl-2">collection</span><span class="hl-0">, (</span><span class="hl-2">message</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-6">log</span><span class="hl-0">(</span><span class="hl-2">message</span><span class="hl-0">), {</span><br/><span class="hl-0">  </span><span class="hl-8">// consumer group identifier, defaults to collection name</span><br/><span class="hl-0">  </span><span class="hl-2">group:</span><span class="hl-0"> </span><span class="hl-3">&quot;myConsumerGroup&quot;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">filter:</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-8">/* optional filter */</span><br/><span class="hl-0">  },</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-2">consumer</span><span class="hl-0">.</span><span class="hl-6">start</span><span class="hl-0">();</span>
+</code></pre>
+<ul>
+<li>Consumes future and past matching messages.</li>
+<li>Order of message consumption is not guaranteed.</li>
+<li>Per <code>group</code>, each matching message is consumed by at most one consumer.</li>
+<li>Messages are consumed at-least-once per <code>group</code>.</li>
+<li>Configurable visibility timeout, visibility delay, maximum number of retries, etc.</li>
+</ul>
+<p>Useful for:</p>
+<ul>
+<li>Message queues</li>
+<li>Job queues</li>
+<li>Event processing</li>
+<li>Command processing</li>
+</ul>
+
+<a href="#notes" id="notes" style="color: inherit; text-decoration: none;">
+  <h2>Notes</h2>
+</a>
+<ul>
+<li>All MongoMQ2 clients are <code>EventEmitters</code>.</li>
+<li>Always attach <code>.on(&#39;error&#39;, (err) =&gt; /* report error */)</code> to monitor errors.<ul>
+<li><code>err.mq2</code> will contain the message being processed, if any.</li>
+</ul>
+</li>
+<li>Always <code>.close()</code> MongoMQ2 clients on shutdown (before closing the MongoClient).<ul>
+<li>MongoMQ2 will try to finish open tasks with best effort.</li>
+</ul>
+</li>
+</ul>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/BatchPublisher.html" class="tsd-kind-icon">Batch<wbr/>Publisher</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Consumer.html" class="tsd-kind-icon">Consumer</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Publisher.html" class="tsd-kind-icon">Publisher</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Subscriber.html" class="tsd-kind-icon">Subscriber</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Subscription.html" class="tsd-kind-icon">Subscription</a></li><li class="tsd-kind-interface"><a href="interfaces/BatchPublisherOptions.html" class="tsd-kind-icon">Batch<wbr/>Publisher<wbr/>Options</a></li><li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/ConsumerOptions.html" class="tsd-kind-icon">Consumer<wbr/>Options</a></li><li class="tsd-kind-interface"><a href="interfaces/PublisherOptions.html" class="tsd-kind-icon">Publisher<wbr/>Options</a></li><li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/SubscriberOptions.html" class="tsd-kind-icon">Subscriber<wbr/>Options</a></li><li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/SubscriptionOptions.html" class="tsd-kind-icon">Subscription<wbr/>Options</a></li><li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="modules.html#ConsumerCallback" class="tsd-kind-icon">Consumer<wbr/>Callback</a></li><li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="modules.html#SubscriptionCallback" class="tsd-kind-icon">Subscription<wbr/>Callback</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>

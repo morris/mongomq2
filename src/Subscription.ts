@@ -1,0 +1,54 @@
+import EventEmitter from "events";
+import { Query } from "mingo";
+import { RawObject } from "mingo/types";
+import { Filter } from "mongodb";
+import { PromiseTracker } from "./PromiseTracker";
+import { toError } from "./toError";
+
+export interface SubscriptionOptions<TMessage> {
+  /** Local filter to apply on received messages (in-memory). */
+  filter?: Filter<TMessage>;
+}
+
+export type SubscriptionCallback<TMessage> = (message: TMessage) => unknown;
+
+export class Subscription<TMessage> extends EventEmitter {
+  protected callback: SubscriptionCallback<TMessage>;
+  protected filter?: Filter<TMessage>;
+  protected mingoQuery?: Query;
+  protected promises = new PromiseTracker();
+  protected closed = false;
+
+  constructor(
+    callback: SubscriptionCallback<TMessage>,
+    options: SubscriptionOptions<TMessage> = {}
+  ) {
+    super();
+
+    this.callback = callback;
+    this.filter = options.filter;
+
+    if (this.filter) this.mingoQuery = new Query(this.filter);
+  }
+
+  async close() {
+    if (this.closed) return;
+    this.closed = true;
+
+    await this.promises.all();
+  }
+
+  async handle(message: TMessage) {
+    if (this.closed) return;
+
+    if (this.mingoQuery && !this.mingoQuery.test(message as RawObject)) {
+      return;
+    }
+
+    try {
+      await this.promises.run(async () => this.callback(message));
+    } catch (err) {
+      this.emit("error", toError(err, message));
+    }
+  }
+}

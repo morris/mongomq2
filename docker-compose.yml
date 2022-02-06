@@ -1,0 +1,14 @@
+version: "3"
+services:
+  mongo:
+    image: mongo:4.4
+    command:
+      - /bin/bash
+      - -c
+      - |
+        mongod --port 27017 --bind_ip_all --replSet rs0 &
+        sleep 3
+        mongo mongodb://localhost:27017 --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] })'
+        wait $$!
+    ports:
+      - "27017:27017"
