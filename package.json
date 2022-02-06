@@ -38,7 +38,7 @@
     "test": "jest --runInBand --collectCoverage",
     "build": "tsc",
     "docs": "typedoc src/index.ts --excludeProtected --excludePrivate",
-    "maybe-publish": "sh scripts/maybe-publish.sh"
+    "maybe-publish": "bash scripts/maybe-publish.sh"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
