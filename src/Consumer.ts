@@ -190,6 +190,7 @@ export class Consumer<
           this.filter,
           {
             _id: maxId ? { $gte: minId, $lt: maxId } : { $gte: minId },
+            [this.ackKey]: { $exists: false },
           },
           {
             $or: [
@@ -199,7 +200,6 @@ export class Consumer<
               {
                 [this.visibilityKey]: { $lt: now },
                 [this.retryKey]: { $lte: this.maxRetries },
-                [this.ackKey]: { $exists: false },
               },
             ],
           },
@@ -237,8 +237,13 @@ export class Consumer<
             this.filter,
             {
               _id: { $gte: this.minId },
-              [this.retryKey]: { $lte: this.maxRetries },
               [this.ackKey]: { $exists: false },
+            },
+            {
+              $or: [
+                { [this.retryKey]: { $exists: false } },
+                { [this.retryKey]: { $lte: this.maxRetries } },
+              ],
             },
           ],
         } as Filter<TMessage>,

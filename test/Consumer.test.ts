@@ -216,4 +216,82 @@ describe("A Consumer", () => {
       concurrency: 5,
     });
   });
+
+  it("should consume past messages correctly", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const group = "testGroup";
+
+    const messages = [
+      {
+        _id: ObjectId.createFromTime(now - 120),
+        type: "text",
+        value: "too old",
+      },
+      {
+        _id: ObjectId.createFromTime(now - 35),
+        type: "text",
+        value: "unacknowledged 1",
+      },
+      {
+        _id: ObjectId.createFromTime(now - 30),
+        type: "text",
+        value: "acknowledged",
+        _c: {
+          [group]: {
+            v: (now - 25) * 1000,
+            a: true,
+          },
+        },
+      },
+      {
+        _id: ObjectId.createFromTime(now - 25),
+        type: "text",
+        value: "unacknowledged 2",
+        _c: {
+          [group]: {
+            v: (now - 20) * 1000,
+            r: 1,
+          },
+        },
+      },
+      {
+        _id: ObjectId.createFromTime(now - 15),
+        type: "text",
+        value: "too many retries",
+        _c: {
+          [group]: {
+            v: (now - 10) * 1000,
+            r: 3,
+          },
+        },
+      },
+      {
+        _id: ObjectId.createFromTime(now - 20),
+        type: "text",
+        value: "unacknowledged 3",
+      },
+    ];
+
+    await util.collection.insertMany(messages as TextTestMessage[]);
+
+    const consumed: NumericTestMessage[] = [];
+
+    util.createConsumer<NumericTestMessage>(
+      (message) => consumed.push(message),
+      {
+        group,
+        visibilityTimeoutSeconds: 2,
+        maxVisibilitySeconds: 60,
+        maxRetries: 2,
+      }
+    );
+
+    await util.waitUntilAcknowledged({ _id: messages[5]._id }, group);
+
+    expect(consumed).toMatchObject([
+      { value: "unacknowledged 1" },
+      { value: "unacknowledged 2" },
+      { value: "unacknowledged 3" },
+    ]);
+  });
 });
