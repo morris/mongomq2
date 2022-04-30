@@ -46,7 +46,7 @@ npm install mongomq2 mongodb
 ## Quick Start
 
 ```ts
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { Consumer, Publisher, Subscriber } from "mongomq2";
 
 const mongoClient = new MongoClient("mongodb://localhost:27017");
@@ -171,6 +171,8 @@ consumer.start();
 - Order of message consumption is not guaranteed.
 - Per `group`, each matching message is consumed by at most one consumer.
 - Messages are consumed at-least-once per `group`.
+  - Keep the `group` property stable per consumer.
+  - Otherwise, messages will be reprocessed (once per unique `group`).
 - Configurable visibility timeout, visibility delay, maximum number of retries, etc.
 
 #### Use Cases
@@ -187,7 +189,5 @@ consumer.start();
   - `err.mq2` will contain the message being processed, if any.
 - Always `.close()` MongoMQ2 clients on shutdown (before closing the MongoClient).
   - MongoMQ2 will try to finish open tasks with best effort.
-- Keep the `group` property on `Consumer` instances stable per consumer.
-  - Otherwise, messages will be reprocessed (once per unique `group`).
 - MongoDB change streams are only supported for MongoDB replica sets.
   - To start a one-node replica set locally e.g. for testing, see `docker-compose.yml`.

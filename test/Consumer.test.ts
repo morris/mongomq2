@@ -230,7 +230,7 @@ describe("A Consumer", () => {
       {
         _id: ObjectId.createFromTime(now - 35),
         type: "text",
-        value: "unacknowledged 1",
+        value: "should be consumed 1",
       },
       {
         _id: ObjectId.createFromTime(now - 30),
@@ -239,14 +239,14 @@ describe("A Consumer", () => {
         _c: {
           [group]: {
             v: (now - 25) * 1000,
-            a: true,
+            a: (now - 23) * 1000,
           },
         },
       },
       {
         _id: ObjectId.createFromTime(now - 25),
         type: "text",
-        value: "unacknowledged 2",
+        value: "should be consumed 2",
         _c: {
           [group]: {
             v: (now - 20) * 1000,
@@ -268,30 +268,41 @@ describe("A Consumer", () => {
       {
         _id: ObjectId.createFromTime(now - 20),
         type: "text",
-        value: "unacknowledged 3",
+        value: "should be consumed 3",
       },
-    ];
-
-    await util.collection.insertMany(messages as TextTestMessage[]);
-
-    const consumed: NumericTestMessage[] = [];
-
-    util.createConsumer<NumericTestMessage>(
-      (message) => consumed.push(message),
       {
-        group,
-        visibilityTimeoutSeconds: 2,
-        maxVisibilitySeconds: 60,
-        maxRetries: 2,
-      }
-    );
+        _id: ObjectId.createFromTime(now - 5),
+        type: "text",
+        value: "too new",
+      },
+    ] as TextTestMessage[];
+
+    await util.collection.insertMany(messages);
+
+    const consumed: TextTestMessage[] = [];
+
+    util.createConsumer<TextTestMessage>((message) => consumed.push(message), {
+      group,
+      visibilityDelaySeconds: 10,
+      visibilityTimeoutSeconds: 2,
+      maxVisibilitySeconds: 60,
+      maxRetries: 2,
+    });
+
+    util.createConsumer<TextTestMessage>((message) => consumed.push(message), {
+      group,
+      visibilityDelaySeconds: 10,
+      visibilityTimeoutSeconds: 2,
+      maxVisibilitySeconds: 60,
+      maxRetries: 2,
+    });
 
     await util.waitUntilAcknowledged({ _id: messages[5]._id }, group);
 
     expect(consumed).toMatchObject([
-      { value: "unacknowledged 1" },
-      { value: "unacknowledged 2" },
-      { value: "unacknowledged 3" },
+      { value: "should be consumed 1" },
+      { value: "should be consumed 2" },
+      { value: "should be consumed 3" },
     ]);
   });
 });
