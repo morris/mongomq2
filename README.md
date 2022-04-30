@@ -145,7 +145,7 @@ subscriber.subscribe((message) => console.log(message), {
 - Past messages are ignored.
 - Each `Subscriber` instance creates one MongoDB change stream.
   - Change streams occupy one connection,
-  - so you'll usually want only one `Subscriber` instance,
+  - so you'll usually want only exactly one `Subscriber` instance,
   - and multiple `.subscribe(...)` calls with local filters.
 
 #### Use Cases
@@ -187,5 +187,7 @@ consumer.start();
   - `err.mq2` will contain the message being processed, if any.
 - Always `.close()` MongoMQ2 clients on shutdown (before closing the MongoClient).
   - MongoMQ2 will try to finish open tasks with best effort.
-- MongoDB change streams are only supported for MongoDB replica set.
-  - To start a one-node replica set locally e.g. for testing, see `docker-compose.yml`
+- Keep the `group` property on `Consumer` instances stable per consumer.
+  - Otherwise, messages will be reprocessed (once per unique `group`).
+- MongoDB change streams are only supported for MongoDB replica sets.
+  - To start a one-node replica set locally e.g. for testing, see `docker-compose.yml`.
