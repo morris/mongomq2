@@ -1,4 +1,3 @@
-import EventEmitter from "events";
 import {
   ChangeStream,
   ChangeStreamOptions,
@@ -6,6 +5,8 @@ import {
   Filter,
   ObjectId,
 } from "mongodb";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import {
   Subscription,
@@ -19,7 +20,11 @@ export interface SubscriberOptions<TMessage> {
   changeStreamOptions?: ChangeStreamOptions;
 }
 
-export class Subscriber<TMessage> extends EventEmitter {
+export type SubscriberEvents<TMessage> = ErrorEvents<TMessage>;
+
+export class Subscriber<TMessage> extends TypedEmitter<
+  SubscriberEvents<TMessage>
+> {
   protected collection: Collection<TMessage>;
   protected filter: Filter<TMessage>;
   protected changeStreamOptions: ChangeStreamOptions;

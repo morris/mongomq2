@@ -1,9 +1,10 @@
-import EventEmitter from "events";
 import { Collection, Filter, ObjectId, UpdateFilter, WithId } from "mongodb";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import { Timeout } from "./Timeout";
 import { toError } from "./toError";
-import { WithOptionalObjectId } from "./types";
+import { WithOptionalObjectId } from "./WithOptionalObjectId";
 
 export interface ConsumerOptions<TMessage> {
   /**
@@ -55,13 +56,17 @@ export interface ConsumerOptions<TMessage> {
   pollMs?: number;
 }
 
+export interface ConsumerEvents<TMessage> extends ErrorEvents<TMessage> {
+  drained: () => unknown;
+}
+
 export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
   message: WithId<TMessage>
 ) => unknown;
 
 export class Consumer<
   TMessage extends WithOptionalObjectId
-> extends EventEmitter {
+> extends TypedEmitter<ConsumerEvents<TMessage>> {
   protected collection: Collection<TMessage>;
   protected filter: Filter<TMessage>;
   protected group: string;
@@ -126,6 +131,27 @@ export class Consumer<
     await this.next();
   }
 
+  /**
+   * Waits until the consumer is drained,
+   * i.e. it could not receive any consumable message.
+   */
+  async drain(timeoutMs = 5000) {
+    return new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(
+          new Error(
+            `Consumer did not drain (timed out after ${timeoutMs} milliseconds)`
+          )
+        );
+      }, timeoutMs);
+
+      this.once("drained", () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+    });
+  }
+
   async close() {
     if (this.closed) return;
     this.closed = true;
@@ -161,10 +187,12 @@ export class Consumer<
           } catch (err) {
             throw toError(err, message);
           }
+        } else {
+          this.emit("drained");
         }
       });
     } catch (err) {
-      this.emit("error", err);
+      this.emit("error", toError(err));
     }
 
     this.pending -= 1;

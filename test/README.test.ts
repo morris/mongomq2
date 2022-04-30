@@ -48,9 +48,9 @@ describe("The examples from the README", () => {
     // > Received a hello! (per active subscriber)
     // > Saved a world! (consumed exactly once by one consumer)
 
-    await util.wait(2000);
-    await subscriber.close();
+    await consumer.drain();
     await consumer.close();
+    await subscriber.close();
 
     expect(logs).toEqual(["Received a hello!", "Saved a world!"]);
   });

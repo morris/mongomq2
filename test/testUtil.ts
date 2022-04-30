@@ -4,7 +4,7 @@ import { Consumer, ConsumerCallback, ConsumerOptions } from "../src/Consumer";
 import "../src/index";
 import { Publisher, PublisherOptions } from "../src/Publisher";
 import { Subscriber, SubscriberOptions } from "../src/Subscriber";
-import { WithOptionalObjectId } from "../src/types";
+import { WithOptionalObjectId } from "../src/WithOptionalObjectId";
 
 export type TestMessage = NumericTestMessage | TextTestMessage;
 

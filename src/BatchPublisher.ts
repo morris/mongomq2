@@ -1,10 +1,11 @@
-import EventEmitter from "events";
 import {
   BulkWriteOptions,
   Collection,
   MongoBulkWriteError,
   OptionalUnlessRequiredId,
 } from "mongodb";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { ErrorEvents } from "./ErrorEvents";
 import { Timeout } from "./Timeout";
 import { toError } from "./toError";
 
@@ -38,7 +39,11 @@ export interface BatchPublisherOptions {
   bulkWriteOptions?: BulkWriteOptions;
 }
 
-export class BatchPublisher<TMessage> extends EventEmitter {
+export type BatchPublisherEvents<TMessage> = ErrorEvents<TMessage>;
+
+export class BatchPublisher<TMessage> extends TypedEmitter<
+  BatchPublisherEvents<TMessage>
+> {
   protected collection: Collection<TMessage>;
   protected maxBatchSize: number;
   protected delayMs: number;

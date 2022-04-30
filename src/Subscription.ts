@@ -1,7 +1,8 @@
-import EventEmitter from "events";
 import { Query } from "mingo";
 import { RawObject } from "mingo/types";
 import { Filter } from "mongodb";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import { toError } from "./toError";
 
@@ -12,7 +13,11 @@ export interface SubscriptionOptions<TMessage> {
 
 export type SubscriptionCallback<TMessage> = (message: TMessage) => unknown;
 
-export class Subscription<TMessage> extends EventEmitter {
+export type SubscriptionEvents<TMessage> = ErrorEvents<TMessage>;
+
+export class Subscription<TMessage> extends TypedEmitter<
+  SubscriptionEvents<TMessage>
+> {
   protected callback: SubscriptionCallback<TMessage>;
   protected filter?: Filter<TMessage>;
   protected mingoQuery?: Query;
