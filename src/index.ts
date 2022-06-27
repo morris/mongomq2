@@ -1,5 +1,6 @@
 export * from "./BatchPublisher";
 export * from "./Consumer";
+export * from "./ErrorEvents";
 export * from "./MessageQueue";
 export * from "./Publisher";
 export * from "./Subscriber";

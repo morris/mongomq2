@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 0.3.0
 
 - Add type-safety to all event emitters
 - Add `Consumer.drain` method (waits until consumer could not receive a message)
