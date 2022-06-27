@@ -4,10 +4,10 @@ import {
   MongoBulkWriteError,
   OptionalUnlessRequiredId,
 } from "mongodb";
-import { TypedEmitter } from "tiny-typed-emitter";
 import { ErrorEvents } from "./ErrorEvents";
 import { Timeout } from "./Timeout";
 import { toError } from "./toError";
+import { TypedEventEmitter } from "./TypedEventEmitter";
 
 export interface BatchPublisherOptions {
   /**
@@ -16,9 +16,9 @@ export interface BatchPublisherOptions {
   maxBatchSize?: number;
 
   /**
-   * Delay before bulk insert.
+   * Delay before a batch insert.
    */
-  delayMs?: number;
+  batchDelayMs?: number;
 
   /**
    * With `bestEffort: true` (default),
@@ -41,7 +41,7 @@ export interface BatchPublisherOptions {
 
 export type BatchPublisherEvents<TMessage> = ErrorEvents<TMessage>;
 
-export class BatchPublisher<TMessage> extends TypedEmitter<
+export class BatchPublisher<TMessage> extends TypedEventEmitter<
   BatchPublisherEvents<TMessage>
 > {
   protected collection: Collection<TMessage>;
@@ -61,7 +61,7 @@ export class BatchPublisher<TMessage> extends TypedEmitter<
 
     this.collection = collection;
     this.maxBatchSize = options.maxBatchSize ?? 100;
-    this.delayMs = options.delayMs ?? 100;
+    this.delayMs = options.batchDelayMs ?? 100;
     this.bestEffort = options.bestEffort ?? true;
     this.bulkWriteOptions = {
       ordered: false,

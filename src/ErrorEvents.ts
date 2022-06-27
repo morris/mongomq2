@@ -1,5 +1,5 @@
-import { ErrorWithMessage } from "./ErrorWithMessage";
+import { EventsDescription } from "mongodb";
 
-export interface ErrorEvents<TMessage> {
-  error: (err: ErrorWithMessage<TMessage>) => unknown;
+export interface ErrorEvents<TMessage> extends EventsDescription {
+  error: (err: Error, message?: TMessage) => unknown;
 }

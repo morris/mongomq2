@@ -42,7 +42,7 @@ export class Publisher<TMessage> {
         return null;
       }
 
-      throw toError(err, message);
+      throw toError(err);
     }
   }
 

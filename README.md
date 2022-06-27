@@ -47,69 +47,88 @@ npm install mongomq2 mongodb
 
 ```ts
 import { MongoClient, ObjectId } from "mongodb";
-import { Consumer, Publisher, Subscriber } from "mongomq2";
+import { MessageQueue } from "mongomq2";
 
 const mongoClient = new MongoClient("mongodb://localhost:27017");
-await mongoClient.connect();
 
-interface MyMessage {
+type MyMessage = InputMessage | OutputMessage;
+
+interface InputMessage {
   _id?: ObjectId;
-  type: "hello" | "world";
+  type: "input";
+  data: string;
 }
 
-const messagesCollection = mongoClient.db().collection<MyMessage>("messages");
+interface OutputMessage {
+  _id?: ObjectId;
+  type: "output";
+  result: string;
+}
 
-// Subscribe to (future) messages of type "hello"
-const subscriber = new Subscriber(messagesCollection);
-
-subscriber.subscribe((message) => console.log("Received a hello!"), {
-  filter: { type: "hello" },
-});
-
-// Consume messages (even past ones) of type "world"
-const consumer = new Consumer(
-  messagesCollection,
-  (message) => console.log("Saved a world!"),
-  { filter: { type: "world" } }
+// create MessageQueue
+const queue = new MessageQueue<MyMessage>(
+  mongoClient.db().collection<MyMessage>("messages")
 );
 
-consumer.start();
+// Consume "input" messages (including past ones)
+// Publish one "output" message per "input" message
+queue.consume<InputMessage>(
+  async (message) => {
+    log(`Processing ${message.data}...`);
+
+    await queue.publish({ type: "output", result: message.data + "!" });
+  },
+  {
+    filter: { type: "input" },
+    group: "handleUpload", // globally unique group
+  }
+);
+
+// Subscribe to (future) "output" messages
+queue.subscribe<OutputMessage>(
+  (message) => log(`Processing done: ${message.result}`),
+  { filter: { type: "output" } }
+);
 
 // Publish some messages
-const publisher = new Publisher(messagesCollection);
+await queue.publish({ type: "input", data: "hello" });
+await queue.publish({ type: "input", data: "world" });
 
-await publisher.publish({ type: "hello" });
-await publisher.publish({ type: "world" });
-
-// > Received a hello! (per active subscriber)
-// > Saved a world! (consumed exactly once by one consumer)
+// > Processing xxx... (processed exactly once)
+// > Processing done: xxx! (per active subscriber)
 ```
 
 ## Synopsis
 
-### Publisher
+### Setup
 
 ```ts
-const publisher = new Publisher(collection);
+const messageQueue = new MessageQueue(collection, {
+  filter: {
+    /* optional global filter applied on change stream and consumers */
+  },
+});
+```
 
-await publisher.publish({ type: "hello" });
+### Publishing
+
+```ts
+await messageQueue.publish({ type: "input" });
 ```
 
 - Publishes the given message to the database immediately.
 - Message insertion is acknowledged, or an error is thrown.
 
-#### Use Cases
+Useful for:
 
 - Critical messages and events
 - Job ingestion
 - Commands
 
-### BatchPublisher
+### Batched Publishing
 
 ```ts
-const publisher = new BatchPublisher(collection);
-
-publisher.publish({ type: "hello" });
+messageQueue.publishBatched({ type: "input" });
 ```
 
 - Queues the given message for publication in memory.
@@ -117,54 +136,21 @@ publisher.publish({ type: "hello" });
 - By default publishes messages with best effort (`majority` write concern, retries)
 - Can be set to "fire & forget" mode by passing `bestEffort: false` (no write concern, no retries)
 
-#### Use Cases
+Useful for:
 
 - Uncritical messages
 - Uncritical notifications
 
-### Subscriber
+### Consumers
 
 ```ts
-const subscriber = new Subscriber(collection, {
-  filter: {
-    /* optional global filter applied on change stream */
-  },
-});
-
-subscriber.subscribe((message) => console.log(message), {
-  filter: {
-    /* optional local filter applied in memory */
-  },
-});
-```
-
-- Subscribes to matching messages in the future.
-- All active subscribers will receive all future matching messages.
-- Messages are delivered at most once.
-- Messages are delivered in database insertion order.
-- Past messages are ignored.
-- Each `Subscriber` instance creates one MongoDB change stream.
-  - Change streams occupy one connection,
-  - so you'll usually want only exactly one `Subscriber` instance,
-  - and multiple `.subscribe(...)` calls with local filters.
-
-#### Use Cases
-
-- Real-time notifications
-- Cache invalidation
-
-### Consumer
-
-```ts
-const consumer = new Consumer(collection, (message) => console.log(message), {
+messageQueue.consume((message) => console.log(message), {
   // consumer group identifier, defaults to collection name
   group: "myConsumerGroup",
   filter: {
-    /* optional filter */
+    // optional filter
   },
 });
-
-consumer.start();
 ```
 
 - Consumes future and past matching messages.
@@ -175,19 +161,43 @@ consumer.start();
   - Otherwise, messages will be reprocessed (once per unique `group`).
 - Configurable visibility timeout, visibility delay, maximum number of retries, etc.
 
-#### Use Cases
+Useful for:
 
 - Message queues
 - Job queues
 - Event processing
 - Command processing
 
+### Subscriptions
+
+```ts
+messageQueue.subscribe((message) => console.log(message), {
+  filter: {
+    // optional local filter applied in memory
+  },
+});
+```
+
+- Subscribes to matching messages in the future.
+- All active subscribers will receive all future matching messages.
+- Messages are delivered at most once.
+- Messages are delivered in database insertion order.
+- Past messages are ignored.
+- Each `MessageQueue` instance creates one MongoDB change stream.
+  - Change streams occupy one connection,
+  - so you'll usually want only exactly one `MessageQueue` instance,
+  - and multiple `.subscribe(...)` calls with local filters.
+
+Useful for:
+
+- Real-time notifications
+- Cache invalidation
+
 ## Notes
 
 - All MongoMQ2 clients are `EventEmitters`.
-- Always attach `.on('error', (err) => /* report error */)` to monitor errors.
-  - `err.mq2` will contain the message being processed, if any.
+- Always attach `.on('error', (err, message?) => /* report error */)` to monitor errors.
 - Always `.close()` MongoMQ2 clients on shutdown (before closing the MongoClient).
   - MongoMQ2 will try to finish open tasks with best effort.
 - MongoDB change streams are only supported for MongoDB replica sets.
-  - To start a one-node replica set locally e.g. for testing, see `docker-compose.yml`.
+  - To start a one-node replica set locally (e.g. for testing) see `docker-compose.yml`.

@@ -5,7 +5,6 @@ import {
   Filter,
   ObjectId,
 } from "mongodb";
-import { TypedEmitter } from "tiny-typed-emitter";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import {
@@ -13,6 +12,7 @@ import {
   SubscriptionCallback,
   SubscriptionOptions,
 } from "./Subscription";
+import { TypedEventEmitter } from "./TypedEventEmitter";
 
 export interface SubscriberOptions<TMessage> {
   /** Global MongoDB filter to apply on change stream. */
@@ -22,7 +22,7 @@ export interface SubscriberOptions<TMessage> {
 
 export type SubscriberEvents<TMessage> = ErrorEvents<TMessage>;
 
-export class Subscriber<TMessage> extends TypedEmitter<
+export class Subscriber<TMessage> extends TypedEventEmitter<
   SubscriberEvents<TMessage>
 > {
   protected collection: Collection<TMessage>;

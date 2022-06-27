@@ -1,9 +1,9 @@
 import { Collection, Filter, ObjectId, UpdateFilter, WithId } from "mongodb";
-import { TypedEmitter } from "tiny-typed-emitter";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import { Timeout } from "./Timeout";
 import { toError } from "./toError";
+import { TypedEventEmitter } from "./TypedEventEmitter";
 import { WithOptionalObjectId } from "./WithOptionalObjectId";
 
 export interface ConsumerOptions<TMessage> {
@@ -66,7 +66,7 @@ export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
 
 export class Consumer<
   TMessage extends WithOptionalObjectId
-> extends TypedEmitter<ConsumerEvents<TMessage>> {
+> extends TypedEventEmitter<ConsumerEvents<TMessage>> {
   protected collection: Collection<TMessage>;
   protected filter: Filter<TMessage>;
   protected group: string;
@@ -180,12 +180,12 @@ export class Consumer<
         if (message) {
           try {
             await this.callback(message);
-            await this.ack(message as unknown as WithId<TMessage>);
+            await this.ack(message);
 
             // fast poll after successfully consumed message
             this.nextTimeout.set(0, 10);
           } catch (err) {
-            throw toError(err, message);
+            this.emit("error", toError(err), message as TMessage);
           }
         } else {
           this.emit("drained");

@@ -1,10 +1,10 @@
 import { Query } from "mingo";
 import { RawObject } from "mingo/types";
 import { Filter } from "mongodb";
-import { TypedEmitter } from "tiny-typed-emitter";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import { toError } from "./toError";
+import { TypedEventEmitter } from "./TypedEventEmitter";
 
 export interface SubscriptionOptions<TMessage> {
   /** Local filter to apply on received messages (in-memory). */
@@ -15,7 +15,7 @@ export type SubscriptionCallback<TMessage> = (message: TMessage) => unknown;
 
 export type SubscriptionEvents<TMessage> = ErrorEvents<TMessage>;
 
-export class Subscription<TMessage> extends TypedEmitter<
+export class Subscription<TMessage> extends TypedEventEmitter<
   SubscriptionEvents<TMessage>
 > {
   protected callback: SubscriptionCallback<TMessage>;
@@ -53,7 +53,7 @@ export class Subscription<TMessage> extends TypedEmitter<
     try {
       await this.promises.run(async () => this.callback(message));
     } catch (err) {
-      this.emit("error", toError(err, message));
+      this.emit("error", toError(err), message);
     }
   }
 }

@@ -5,7 +5,7 @@ describe("A BatchPublisher", () => {
   const util = new TestUtil(process.env);
 
   it("should be able to publish messages", async () => {
-    const publisher = util.createBatchPublisher({ delayMs: 10 });
+    const publisher = util.createBatchPublisher({ batchDelayMs: 10 });
 
     publisher.publish({ type: "numeric", value: 1 });
     publisher.publish({ type: "text", value: "hello" });
@@ -23,7 +23,7 @@ describe("A BatchPublisher", () => {
   it("should publish messages with unique keys once", async () => {
     await util.collection.createIndex({ key: 1 }, { unique: true });
 
-    const publisher = util.createBatchPublisher({ delayMs: 10 });
+    const publisher = util.createBatchPublisher({ batchDelayMs: 10 });
 
     publisher.publish({ type: "numeric", value: 1, key: "1" });
     publisher.publish({ type: "numeric", value: 2, key: "2" });
@@ -43,7 +43,7 @@ describe("A BatchPublisher", () => {
 
   it("should publish queued messages on close if bestEffort is enabled", async () => {
     const publisher = util.createBatchPublisher({
-      delayMs: 10000,
+      batchDelayMs: 10000,
       bestEffort: true,
     });
 
@@ -66,7 +66,7 @@ describe("A BatchPublisher", () => {
 
   it("should drop queued messages on close if bestEffort is disabled", async () => {
     const publisher = util.createBatchPublisher({
-      delayMs: 10000,
+      batchDelayMs: 10000,
       bestEffort: false,
     });
 
