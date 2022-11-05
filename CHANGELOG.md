@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 0.4.0
 
 - Fix typing issue; all generic `TMessage` args now inherit from MongoDB's `Document` interface
 - Simplify build
