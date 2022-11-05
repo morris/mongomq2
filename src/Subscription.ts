@@ -1,6 +1,6 @@
 import { Query } from "mingo";
 import { RawObject } from "mingo/types";
-import { Filter , Document} from "mongodb";
+import { Document, Filter } from "mongodb";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import { toError } from "./toError";
@@ -11,9 +11,12 @@ export interface SubscriptionOptions<TMessage extends Document> {
   filter?: Filter<TMessage>;
 }
 
-export type SubscriptionCallback<TMessage extends Document> = (message: TMessage) => unknown;
+export type SubscriptionCallback<TMessage extends Document> = (
+  message: TMessage
+) => unknown;
 
-export type SubscriptionEvents<TMessage extends Document> = ErrorEvents<TMessage>;
+export type SubscriptionEvents<TMessage extends Document> =
+  ErrorEvents<TMessage>;
 
 export class Subscription<TMessage extends Document> extends TypedEventEmitter<
   SubscriptionEvents<TMessage>

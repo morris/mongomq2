@@ -2,9 +2,9 @@ import {
   ChangeStream,
   ChangeStreamOptions,
   Collection,
+  Document,
   Filter,
   ObjectId,
-  Document
 } from "mongodb";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";

@@ -1,9 +1,9 @@
 import {
   Collection,
+  Document,
   InsertOneOptions,
   MongoServerError,
   OptionalUnlessRequiredId,
-  Document,
 } from "mongodb";
 import { PromiseTracker } from "./PromiseTracker";
 import { toError } from "./toError";

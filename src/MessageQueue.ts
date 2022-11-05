@@ -1,8 +1,4 @@
-import {
-  Collection,
-  Filter,
-  OptionalUnlessRequiredId,
-} from "mongodb";
+import { Collection, Filter, OptionalUnlessRequiredId } from "mongodb";
 import {
   BatchPublisher,
   BatchPublisherEvents,
