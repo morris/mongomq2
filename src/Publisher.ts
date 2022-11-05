@@ -3,6 +3,7 @@ import {
   InsertOneOptions,
   MongoServerError,
   OptionalUnlessRequiredId,
+  Document,
 } from "mongodb";
 import { PromiseTracker } from "./PromiseTracker";
 import { toError } from "./toError";
@@ -11,7 +12,7 @@ export interface PublisherOptions {
   insertOneOptions?: InsertOneOptions;
 }
 
-export class Publisher<TMessage> {
+export class Publisher<TMessage extends Document> {
   protected collection: Collection<TMessage>;
   protected insertOneOptions: InsertOneOptions;
   protected promises = new PromiseTracker();

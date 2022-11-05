@@ -1,6 +1,7 @@
 import {
   BulkWriteOptions,
   Collection,
+  Document,
   MongoBulkWriteError,
   OptionalUnlessRequiredId,
 } from "mongodb";
@@ -39,11 +40,12 @@ export interface BatchPublisherOptions {
   bulkWriteOptions?: BulkWriteOptions;
 }
 
-export type BatchPublisherEvents<TMessage> = ErrorEvents<TMessage>;
+export type BatchPublisherEvents<TMessage extends Document> =
+  ErrorEvents<TMessage>;
 
-export class BatchPublisher<TMessage> extends TypedEventEmitter<
-  BatchPublisherEvents<TMessage>
-> {
+export class BatchPublisher<
+  TMessage extends Document
+> extends TypedEventEmitter<BatchPublisherEvents<TMessage>> {
   protected collection: Collection<TMessage>;
   protected maxBatchSize: number;
   protected delayMs: number;

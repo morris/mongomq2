@@ -1,4 +1,8 @@
-import { Collection, Filter, OptionalUnlessRequiredId } from "mongodb";
+import {
+  Collection,
+  Filter,
+  OptionalUnlessRequiredId,
+} from "mongodb";
 import {
   BatchPublisher,
   BatchPublisherEvents,
@@ -22,7 +26,7 @@ export interface MessageQueueOptions<TMessage extends WithOptionalObjectId>
     SubscriberOptions<TMessage>,
     ConsumerOptions<TMessage> {}
 
-export interface MessageQueueEvents<TMessage>
+export interface MessageQueueEvents<TMessage extends WithOptionalObjectId>
   extends BatchPublisherEvents<TMessage>,
     SubscriberEvents<TMessage>,
     ConsumerEvents<TMessage> {}

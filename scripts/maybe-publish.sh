@@ -1,5 +1,5 @@
-NAME=$(node scripts/package.js name)
-VERSION=$(node scripts/package.js version)
+NAME=$(node -p "require('./package.json').name")
+VERSION=$(node -p "require('./package.json').version")
 
 if [[ $(npm info $NAME@$VERSION) ]]; then
   echo "$NAME@$VERSION already published, skipping"

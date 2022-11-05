@@ -1,4 +1,6 @@
-module.exports = {
+import { Config } from "@jest/types";
+
+const config: Config.InitialOptions = {
   preset: "ts-jest",
   testEnvironment: "node",
   coverageThreshold: {
@@ -9,3 +11,5 @@ module.exports = {
   collectCoverageFrom: ["src/**/*.ts"],
   coverageReporters: ["json", "lcov", "text", "clover"],
 };
+
+export default config;

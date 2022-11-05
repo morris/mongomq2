@@ -6,7 +6,7 @@ import { toError } from "./toError";
 import { TypedEventEmitter } from "./TypedEventEmitter";
 import { WithOptionalObjectId } from "./WithOptionalObjectId";
 
-export interface ConsumerOptions<TMessage> {
+export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
   /**
    * MongoDB filter for messages to be consumed.
    */
@@ -56,7 +56,8 @@ export interface ConsumerOptions<TMessage> {
   pollMs?: number;
 }
 
-export interface ConsumerEvents<TMessage> extends ErrorEvents<TMessage> {
+export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
+  extends ErrorEvents<TMessage> {
   drained: () => unknown;
 }
 

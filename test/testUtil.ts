@@ -1,10 +1,16 @@
 import { Collection, Filter, MongoClient } from "mongodb";
-import { BatchPublisher, BatchPublisherOptions } from "../src/BatchPublisher";
-import { Consumer, ConsumerCallback, ConsumerOptions } from "../src/Consumer";
-import "../src/index";
-import { Publisher, PublisherOptions } from "../src/Publisher";
-import { Subscriber, SubscriberOptions } from "../src/Subscriber";
-import { WithOptionalObjectId } from "../src/WithOptionalObjectId";
+import {
+  BatchPublisher,
+  BatchPublisherOptions,
+  Consumer,
+  ConsumerCallback,
+  ConsumerOptions,
+  Publisher,
+  PublisherOptions,
+  Subscriber,
+  SubscriberOptions,
+  WithOptionalObjectId,
+} from "../src";
 
 export type TestMessage = NumericTestMessage | TextTestMessage;
 

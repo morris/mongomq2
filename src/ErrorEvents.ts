@@ -1,5 +1,6 @@
-import { EventsDescription } from "mongodb";
+import type { Document, EventsDescription } from "mongodb";
 
-export interface ErrorEvents<TMessage> extends EventsDescription {
+export interface ErrorEvents<TMessage extends Document>
+  extends EventsDescription {
   error: (err: Error, message?: TMessage) => unknown;
 }

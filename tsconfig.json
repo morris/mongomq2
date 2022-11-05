@@ -1,19 +1,20 @@
 {
-  "include": ["src"],
+  "include": ["src", "test"],
   "compilerOptions": {
-    "outDir": "dist",
-    "target": "ES2019",
-    "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "resolveJsonModule": true,
+
+    "target": "ES2019",
+    "module": "CommonJS",
     "sourceMap": true,
     "declaration": true,
+
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "strict": true,
     "strictFunctionTypes": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "noEmit": true
   }
 }

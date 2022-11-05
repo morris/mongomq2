@@ -4,6 +4,7 @@ import {
   Collection,
   Filter,
   ObjectId,
+  Document
 } from "mongodb";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
@@ -14,15 +15,15 @@ import {
 } from "./Subscription";
 import { TypedEventEmitter } from "./TypedEventEmitter";
 
-export interface SubscriberOptions<TMessage> {
+export interface SubscriberOptions<TMessage extends Document> {
   /** Global MongoDB filter to apply on change stream. */
   filter?: Filter<TMessage>;
   changeStreamOptions?: ChangeStreamOptions;
 }
 
-export type SubscriberEvents<TMessage> = ErrorEvents<TMessage>;
+export type SubscriberEvents<TMessage extends Document> = ErrorEvents<TMessage>;
 
-export class Subscriber<TMessage> extends TypedEventEmitter<
+export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
   SubscriberEvents<TMessage>
 > {
   protected collection: Collection<TMessage>;

@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { Publisher } from "../src/Publisher";
+import { Publisher } from "../src";
 import {
   NumericTestMessage,
   TestFailure,

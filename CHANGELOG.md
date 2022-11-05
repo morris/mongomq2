@@ -1,5 +1,11 @@
 # Changelog
 
+## NEXT
+
+- Fix typing issue; all generic `TMessage` args now inherit from MongoDB's `Document` interface
+- Simplify build
+- Update deps
+
 ## 0.3.0
 
 - Add type-safety to all event emitters
