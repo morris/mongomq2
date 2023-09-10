@@ -1,4 +1,4 @@
-Copyright (c) 2022 Morris Brodersen <mb@morrisbrodersen.de>
+Copyright (c) 2022-2023 Morris Brodersen <mb@morrisbrodersen.de>
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

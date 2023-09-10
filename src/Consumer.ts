@@ -62,11 +62,11 @@ export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
 }
 
 export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
-  message: WithId<TMessage>
+  message: WithId<TMessage>,
 ) => unknown;
 
 export class Consumer<
-  TMessage extends WithOptionalObjectId
+  TMessage extends WithOptionalObjectId,
 > extends TypedEventEmitter<ConsumerEvents<TMessage>> {
   protected collection: Collection<TMessage>;
   protected filter: Filter<TMessage>;
@@ -91,7 +91,7 @@ export class Consumer<
   constructor(
     collection: Collection<TMessage>,
     callback: ConsumerCallback<TMessage>,
-    options: ConsumerOptions<TMessage> = {}
+    options: ConsumerOptions<TMessage> = {},
   ) {
     super();
 
@@ -111,7 +111,7 @@ export class Consumer<
     this.ackKey = `_c.${this.group}.a`;
 
     this.minId = ObjectId.createFromTime(
-      Math.floor(Date.now() / 1000) - this.maxVisibilitySeconds
+      Math.floor(Date.now() / 1000) - this.maxVisibilitySeconds,
     );
   }
 
@@ -141,8 +141,8 @@ export class Consumer<
       const timeout = setTimeout(() => {
         reject(
           new Error(
-            `Consumer did not drain (timed out after ${timeoutMs} milliseconds)`
-          )
+            `Consumer did not drain (timed out after ${timeoutMs} milliseconds)`,
+          ),
         );
       }, timeoutMs);
 
@@ -209,7 +209,7 @@ export class Consumer<
     const maxId =
       this.visibilityDelaySeconds > 0
         ? ObjectId.createFromTime(
-            Math.floor(now / 1000) - this.visibilityDelaySeconds
+            Math.floor(now / 1000) - this.visibilityDelaySeconds,
           )
         : undefined;
 
@@ -241,7 +241,7 @@ export class Consumer<
         $inc: {
           [this.retryKey]: 1,
         },
-      } as unknown as UpdateFilter<TMessage>
+      } as unknown as UpdateFilter<TMessage>,
     );
 
     return result.value;
@@ -252,7 +252,7 @@ export class Consumer<
       { _id: message._id } as Filter<TMessage>,
       {
         $set: { [this.ackKey]: Date.now() },
-      } as unknown as UpdateFilter<TMessage>
+      } as unknown as UpdateFilter<TMessage>,
     );
   }
 
@@ -280,14 +280,14 @@ export class Consumer<
           projection: { _id: 1 },
           sort: { _id: 1 },
           readPreference: "secondaryPreferred",
-        }
+        },
       );
 
       if (message) {
         this.minId = message._id as ObjectId;
       } else {
         this.minId = ObjectId.createFromTime(
-          Math.floor(Date.now() / 1000) - this.visibilityTimeoutSeconds * 2
+          Math.floor(Date.now() / 1000) - this.visibilityTimeoutSeconds * 2,
         );
       }
     } catch (err) {
@@ -296,7 +296,7 @@ export class Consumer<
 
     this.seekTimeout.set(
       this.visibilityTimeoutSeconds * 2000,
-      this.visibilityTimeoutSeconds * 4000
+      this.visibilityTimeoutSeconds * 4000,
     );
   }
 }

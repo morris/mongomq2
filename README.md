@@ -1,7 +1,7 @@
 # MongoMQ2
 
 [![NPM version](https://img.shields.io/npm/v/mongomq2?style=flat-square)](https://www.npmjs.com/package/mongomq2)
-[![Build status](https://img.shields.io/github/workflow/status/morris/mongomq2/Pipeline?style=flat-square)](https://github.com/morris/mongomq2/actions)
+[![Build status](https://img.shields.io/github/actions/workflow/status/morris/mongomq2/pipeline.yml?branch=main&style=flat-square)](https://github.com/morris/mongomq2/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/morris/mongomq2?style=flat-square&token=5GBOZPEJW0)](https://app.codecov.io/gh/morris/mongomq2)
 
 MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into

@@ -20,7 +20,7 @@ export class Publisher<TMessage extends Document> {
 
   constructor(
     collection: Collection<TMessage>,
-    options: PublisherOptions = {}
+    options: PublisherOptions = {},
   ) {
     this.collection = collection;
     this.insertOneOptions = {
@@ -34,7 +34,7 @@ export class Publisher<TMessage extends Document> {
 
     try {
       const result = await this.promises.add(
-        this.collection.insertOne(message, this.insertOneOptions)
+        this.collection.insertOne(message, this.insertOneOptions),
       );
 
       return result.insertedId;

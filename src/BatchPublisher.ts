@@ -44,7 +44,7 @@ export type BatchPublisherEvents<TMessage extends Document> =
   ErrorEvents<TMessage>;
 
 export class BatchPublisher<
-  TMessage extends Document
+  TMessage extends Document,
 > extends TypedEventEmitter<BatchPublisherEvents<TMessage>> {
   protected collection: Collection<TMessage>;
   protected maxBatchSize: number;
@@ -57,7 +57,7 @@ export class BatchPublisher<
 
   constructor(
     collection: Collection<TMessage>,
-    options: BatchPublisherOptions = {}
+    options: BatchPublisherOptions = {},
   ) {
     super();
 

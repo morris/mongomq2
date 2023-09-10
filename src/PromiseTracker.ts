@@ -8,7 +8,7 @@ export class PromiseTracker {
   add<T>(promise: Promise<T>): Promise<T> {
     const trackedPromise: Promise<unknown> = promise.then(
       () => this.promises.delete(trackedPromise),
-      () => this.promises.delete(trackedPromise)
+      () => this.promises.delete(trackedPromise),
     );
 
     this.promises.add(trackedPromise);

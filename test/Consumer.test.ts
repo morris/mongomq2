@@ -10,7 +10,7 @@ import {
 describe("A Consumer", () => {
   const util = new TestUtil(process.env);
 
-  it("should be able to publish and consume messages (2 clients, 4 messages)", async () => {
+  it("should be able to publish and consume messages (2 consumers, 4 messages)", async () => {
     const publisher = new Publisher(util.collection);
 
     const numericMessages1: NumericTestMessage[] = [];
@@ -23,7 +23,7 @@ describe("A Consumer", () => {
       {
         filter: { type: "numeric" },
         group: "numeric",
-      }
+      },
     );
 
     util.createConsumer<TextTestMessage>(
@@ -31,7 +31,7 @@ describe("A Consumer", () => {
       {
         filter: { type: "text" },
         group: "text",
-      }
+      },
     );
 
     util.createConsumer<NumericTestMessage>(
@@ -39,7 +39,7 @@ describe("A Consumer", () => {
       {
         filter: { type: "numeric" },
         group: "numeric",
-      }
+      },
     );
 
     util.createConsumer<TextTestMessage>(
@@ -47,7 +47,7 @@ describe("A Consumer", () => {
       {
         filter: { type: "text" },
         group: "text",
-      }
+      },
     );
 
     await publisher.publish({ type: "numeric", value: 1 });
@@ -60,8 +60,8 @@ describe("A Consumer", () => {
 
     expect(
       [...numericMessages1, ...numericMessages2].sort(
-        (a, b) => a.value - b.value
-      )
+        (a, b) => a.value - b.value,
+      ),
     ).toEqual([
       { _id: expect.any(ObjectId), type: "numeric", value: 1 },
       { _id: expect.any(ObjectId), type: "numeric", value: 2 },
@@ -69,8 +69,8 @@ describe("A Consumer", () => {
 
     expect(
       [...textMessages1, ...textMessages2].sort((a, b) =>
-        a.value < b.value ? -1 : a.value > b.value ? 1 : 0
-      )
+        a.value < b.value ? -1 : a.value > b.value ? 1 : 0,
+      ),
     ).toEqual([
       { _id: expect.any(ObjectId), type: "text", value: "hello" },
       { _id: expect.any(ObjectId), type: "text", value: "world" },
@@ -122,7 +122,7 @@ describe("A Consumer", () => {
               concurrency,
               visibilityTimeoutSeconds: 1,
               maxRetries: 100,
-            }
+            },
           );
 
           util.createConsumer<TextTestMessage>(
@@ -143,7 +143,7 @@ describe("A Consumer", () => {
               concurrency,
               visibilityTimeoutSeconds: 1,
               maxRetries: 100,
-            }
+            },
           );
         }
 
@@ -169,7 +169,7 @@ describe("A Consumer", () => {
 
         if (failureRate > 0) {
           expect(
-            numericMessages.length >= numberOfNumericMessages
+            numericMessages.length >= numberOfNumericMessages,
           ).toBeTruthy();
 
           expect(textMessages.length >= numberOfTextMessages).toBeTruthy();

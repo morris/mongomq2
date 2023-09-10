@@ -36,7 +36,7 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
 
   constructor(
     collection: Collection<TMessage>,
-    options: SubscriberOptions<TMessage> = {}
+    options: SubscriberOptions<TMessage> = {},
   ) {
     super();
 
@@ -59,7 +59,7 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
    */
   subscribe<TSpecificEvent extends TMessage>(
     callback: SubscriptionCallback<TSpecificEvent>,
-    options: SubscriptionOptions<TSpecificEvent> = {}
+    options: SubscriptionOptions<TSpecificEvent> = {},
   ) {
     if (this.closed) throw new Error("Subscriber closed");
 
@@ -111,7 +111,7 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
         },
         { $match: this.filter },
       ],
-      this.changeStreamOptions
+      this.changeStreamOptions,
     );
 
     this.changeStream.on("change", async (change: WatchResult<TMessage>) => {

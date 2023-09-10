@@ -12,7 +12,7 @@ export interface SubscriptionOptions<TMessage extends Document> {
 }
 
 export type SubscriptionCallback<TMessage extends Document> = (
-  message: TMessage
+  message: TMessage,
 ) => unknown;
 
 export type SubscriptionEvents<TMessage extends Document> =
@@ -29,7 +29,7 @@ export class Subscription<TMessage extends Document> extends TypedEventEmitter<
 
   constructor(
     callback: SubscriptionCallback<TMessage>,
-    options: SubscriptionOptions<TMessage> = {}
+    options: SubscriptionOptions<TMessage> = {},
   ) {
     super();
 

@@ -40,7 +40,7 @@ export class TestUtil {
   constructor(env: Record<string, string | undefined>) {
     this.mongoClient = new MongoClient(
       env.MONGO_URL ?? "mongodb://localhost:27017",
-      { maxPoolSize: 100 }
+      { maxPoolSize: 100 },
     );
 
     this.collection = this.mongoClient
@@ -122,12 +122,12 @@ export class TestUtil {
 
   createConsumer<TMessage extends TestMessage>(
     callback: ConsumerCallback<TMessage>,
-    options?: ConsumerOptions<TMessage>
+    options?: ConsumerOptions<TMessage>,
   ) {
     const consumer = new Consumer<TMessage>(
       this.collection as unknown as Collection<TMessage>,
       callback,
-      options
+      options,
     );
 
     consumer.on("error", (err) => {

@@ -9,10 +9,13 @@ export class Timeout {
   set(minDelayMs: number, maxDelayMs = minDelayMs) {
     if (this.id) clearTimeout(this.id);
 
-    this.id = setTimeout(() => {
-      this.id = undefined;
-      this.callback();
-    }, minDelayMs + Math.floor((maxDelayMs - minDelayMs) * Math.random()));
+    this.id = setTimeout(
+      () => {
+        this.id = undefined;
+        this.callback();
+      },
+      minDelayMs + Math.floor((maxDelayMs - minDelayMs) * Math.random()),
+    );
   }
 
   isSet() {

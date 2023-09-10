@@ -28,7 +28,7 @@ export interface MessageQueueEvents<TMessage extends WithOptionalObjectId>
     ConsumerEvents<TMessage> {}
 
 export class MessageQueue<
-  TMessage extends WithOptionalObjectId
+  TMessage extends WithOptionalObjectId,
 > extends TypedEventEmitter<MessageQueueEvents<TMessage>> {
   public readonly collection: Collection<TMessage>;
   protected options: MessageQueueOptions<TMessage>;
@@ -39,7 +39,7 @@ export class MessageQueue<
 
   constructor(
     collection: Collection<TMessage>,
-    options?: MessageQueueOptions<TMessage>
+    options?: MessageQueueOptions<TMessage>,
   ) {
     super();
 
@@ -50,11 +50,11 @@ export class MessageQueue<
     this.subscriber = new Subscriber(collection, options);
 
     this.batchPublisher.on("error", (err, message) =>
-      this.emit("error", err, message)
+      this.emit("error", err, message),
     );
 
     this.subscriber.on("error", (err, message) =>
-      this.emit("error", err, message)
+      this.emit("error", err, message),
     );
   }
 
@@ -68,14 +68,14 @@ export class MessageQueue<
 
   subscribe<TSpecificMessage extends TMessage>(
     callback: SubscriptionCallback<TSpecificMessage>,
-    options?: SubscriptionOptions<TSpecificMessage>
+    options?: SubscriptionOptions<TSpecificMessage>,
   ) {
     return this.subscriber.subscribe(callback, options);
   }
 
   consume<TSpecificMessage extends TMessage>(
     callback: ConsumerCallback<TSpecificMessage>,
-    options?: ConsumerOptions<TSpecificMessage>
+    options?: ConsumerOptions<TSpecificMessage>,
   ) {
     const { filter: globalFilter, ...globalOptions } = this.options;
     const { filter: localFilter, ...localOptions } = options ?? {};
@@ -92,7 +92,7 @@ export class MessageQueue<
         ...globalOptions,
         ...localOptions,
         filter: filter as Filter<TSpecificMessage>,
-      }
+      },
     );
 
     consumer.on("error", (err, message) => this.emit("error", err, message));
@@ -107,7 +107,7 @@ export class MessageQueue<
 
   async drain(timeoutMs?: number) {
     await Promise.all(
-      this.consumers.map((consumer) => consumer.drain(timeoutMs))
+      this.consumers.map((consumer) => consumer.drain(timeoutMs)),
     );
   }
 

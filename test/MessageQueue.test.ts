@@ -30,7 +30,7 @@ describe("The MessageQueue", () => {
 
     // create MessageQueue
     const queue = new MessageQueue<MyMessage>(
-      mongoClient.db().collection<MyMessage>("messages")
+      mongoClient.db().collection<MyMessage>("messages"),
     );
 
     // Consume "input" messages (including past ones)
@@ -44,13 +44,13 @@ describe("The MessageQueue", () => {
       {
         filter: { type: "input" },
         group: "HANDLE_UPLOAD", // globally unique group
-      }
+      },
     );
 
     // Subscribe to (future) "output" messages
     queue.subscribe<OutputMessage>(
       (message) => log(`Processing done: ${message.result}`),
-      { filter: { type: "output" } }
+      { filter: { type: "output" } },
     );
 
     // Publish some messages
@@ -86,7 +86,7 @@ describe("The MessageQueue", () => {
 
     const queue = new MessageQueue<MyMessage>(
       util.mongoClient.db().collection<MyMessage>("messages"),
-      { filter: { type: "a" } }
+      { filter: { type: "a" } },
     );
 
     queue.consume(log, { group: "1" });

@@ -43,7 +43,7 @@ describe("A Publisher", () => {
     publisher.close();
 
     await expect(async () =>
-      publisher.publish({ type: "numeric", value: 1 })
+      publisher.publish({ type: "numeric", value: 1 }),
     ).rejects.toThrow("Publisher closed");
 
     const messages = await util.collection.find({}).toArray();

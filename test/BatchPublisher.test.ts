@@ -53,7 +53,7 @@ describe("A BatchPublisher", () => {
     await publisher.close();
 
     expect(() =>
-      publisher.publish({ type: "text", value: "hello2" })
+      publisher.publish({ type: "text", value: "hello2" }),
     ).toThrowError("BatchPublisher closed");
 
     const messages = await util.collection.find({}).toArray();
