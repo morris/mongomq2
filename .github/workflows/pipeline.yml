@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x, 20.x]
     steps:
       - uses: actions/checkout@v2
       - run: docker-compose up -d
@@ -26,8 +26,8 @@ jobs:
       - run: docker-compose down
         if: always()
       - run: npx codecov
-        if: ${{ matrix.node-version == '14.x' }}
+        if: ${{ matrix.node-version == '18.x' }}
       - run: npm run maybe-publish
-        if: ${{ github.ref == 'refs/heads/main' && matrix.node-version == '14.x' }}
+        if: ${{ github.ref == 'refs/heads/main' && matrix.node-version == '18.x' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

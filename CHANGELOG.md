@@ -2,6 +2,7 @@
 
 ## NEXT
 
+- BREAKING CHANGE: Require Node.js >= 18
 - Update deps
 
 ## 0.4.0

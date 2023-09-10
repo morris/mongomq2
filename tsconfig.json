@@ -4,7 +4,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
 
-    "target": "ES2019",
+    "lib": ["ES2022"],
+    "target": "ES2022",
     "module": "CommonJS",
     "sourceMap": true,
     "declaration": true,
@@ -15,6 +16,7 @@
     "strict": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
+
     "noEmit": true
   }
 }
