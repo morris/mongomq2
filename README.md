@@ -6,7 +6,7 @@
 
 MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into
 **general-purpose message queues** or event logs,
-without additional server components.
+without additional deployments.
 
 At a slight expense of throughput compared to specialized
 message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
@@ -23,6 +23,7 @@ message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
   - sharding,
   - and TTL indexes.
 - No chaining of queues required because subscribers and consumers can read from the same queue.
+- Low-cost ops (no additional deployments needed)
 
 There's more:
 
@@ -35,7 +36,7 @@ There's more:
 MongoMQ2 can be an effective and flexible building block for
 message- and event-driven architectures,
 especially if you're already on MongoDB
-and don't want to introduce additional system components.
+and don't want to introduce additional system components to deploy and operate.
 
 ## Installation
 
@@ -66,46 +67,50 @@ interface OutputMessage {
 }
 
 // create MessageQueue
-const queue = new MessageQueue<MyMessage>(
-  mongoClient.db().collection<MyMessage>("messages")
-);
+const messageCollection = mongoClient.db().collection<MyMessage>("messages");
+const messageQueue = new MessageQueue(messageCollection);
 
 // Consume "input" messages (including past ones)
 // Publish one "output" message per "input" message
-queue.consume<InputMessage>(
+messageQueue.consume<InputMessage>(
+  // consumer callback to be executed at least once per message
   async (message) => {
-    log(`Processing ${message.data}...`);
+    console.log(`Processing ${message.data}...`);
 
-    await queue.publish({ type: "output", result: message.data + "!" });
+    await messageQueue.publish({ type: "output", result: message.data + "!" });
   },
   {
-    filter: { type: "input" },
-    group: "handleUpload", // globally unique group
-  }
+    group: "handleInput", // group identifier, unique per consumer callback
+    filter: { type: "input" }, // only consume messages of type "input"
+  },
 );
 
 // Subscribe to (future) "output" messages
-queue.subscribe<OutputMessage>(
-  (message) => log(`Processing done: ${message.result}`),
-  { filter: { type: "output" } }
+messageQueue.subscribe<OutputMessage>(
+  (message) => {
+    console.log(`Processing done: ${message.result}`);
+  },
+  { filter: { type: "output" } },
 );
 
 // Publish some messages
-await queue.publish({ type: "input", data: "hello" });
-await queue.publish({ type: "input", data: "world" });
+await messageQueue.publish({ type: "input", data: "hello" });
+await messageQueue.publish({ type: "input", data: "world" });
 
 // > Processing xxx... (processed exactly once)
 // > Processing done: xxx! (per active subscriber)
 ```
 
-## Synopsis
+## Usage
 
 ### Setup
 
 ```ts
+const messageQueue = new MessageQueue(collection);
+
 const messageQueue = new MessageQueue(collection, {
   filter: {
-    /* optional global filter applied on change stream and consumers */
+    // optional global filter applied on all subscribers and consumers
   },
 });
 ```
@@ -116,7 +121,7 @@ const messageQueue = new MessageQueue(collection, {
 await messageQueue.publish({ type: "input" });
 ```
 
-- Publishes the given message to the database immediately.
+- Publishes the given message to the queue immediately.
 - Message insertion is acknowledged, or an error is thrown.
 
 Useful for:
@@ -144,20 +149,25 @@ Useful for:
 ### Consumers
 
 ```ts
-messageQueue.consume((message) => console.log(message), {
-  // consumer group identifier, defaults to collection name
-  group: "myConsumerGroup",
-  filter: {
-    // optional filter
+messageQueue.consume(
+  (message) => {
+    // handle message
   },
-});
+  {
+    // consumer group identifier, defaults to collection name
+    group: "myConsumerGroup",
+    filter: {
+      // optional filter
+    },
+  },
+);
 ```
 
 - Consumes future and past matching messages.
 - Order of message consumption is not guaranteed.
-- Per `group`, each matching message is consumed by at most one consumer.
-- Messages are consumed at-least-once per `group`.
-  - Keep the `group` property stable per consumer.
+- Per unique `group`, each matching message is consumed by at most one consumer.
+- Messages are consumed at least once per `group`.
+  - Keep the `group` property stable per consumer callback.
   - Otherwise, messages will be reprocessed (once per unique `group`).
 - Configurable visibility timeout, visibility delay, maximum number of retries, etc.
 
@@ -171,11 +181,16 @@ Useful for:
 ### Subscriptions
 
 ```ts
-messageQueue.subscribe((message) => console.log(message), {
-  filter: {
-    // optional local filter applied in memory
+messageQueue.subscribe(
+  (message) => {
+    // handle message
   },
-});
+  {
+    filter: {
+      // optional local filter applied in memory
+    },
+  },
+);
 ```
 
 - Subscribes to matching messages in the future.
@@ -200,4 +215,4 @@ Useful for:
 - Always `.close()` MongoMQ2 clients on shutdown (before closing the MongoClient).
   - MongoMQ2 will try to finish open tasks with best effort.
 - MongoDB change streams are only supported for MongoDB replica sets.
-  - To start a one-node replica set locally (e.g. for testing) see `docker-compose.yml`.
+  - To start a one-node replica set locally (e.g. for testing), see `docker-compose.yml`.

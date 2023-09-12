@@ -2,9 +2,9 @@ import { Collection, Filter, ObjectId, UpdateFilter, WithId } from "mongodb";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
 import { Timeout } from "./Timeout";
-import { toError } from "./toError";
 import { TypedEventEmitter } from "./TypedEventEmitter";
 import { WithOptionalObjectId } from "./WithOptionalObjectId";
+import { toError } from "./toError";
 
 export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
   /**
@@ -58,12 +58,12 @@ export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
 
 export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
   extends ErrorEvents<TMessage> {
-  drained: () => unknown;
+  drained: () => void;
 }
 
 export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
   message: WithId<TMessage>,
-) => unknown;
+) => void | Promise<void>;
 
 export class Consumer<
   TMessage extends WithOptionalObjectId,

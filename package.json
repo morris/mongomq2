@@ -32,8 +32,8 @@
     "dist"
   ],
   "scripts": {
-    "format": "prettier --write './**/*.ts' './**/*.js' './**/*.json'",
-    "format-check": "prettier --check './**/*.ts' './**/*.js' './**/*.json'",
+    "format": "prettier --write .",
+    "format-check": "prettier --check .",
     "lint": "eslint .",
     "test": "jest --runInBand --coverage",
     "build": "tsc --project tsconfig.build.json",

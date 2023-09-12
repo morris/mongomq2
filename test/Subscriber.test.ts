@@ -11,13 +11,23 @@ describe("A Subscriber", () => {
     const numericMessages: TestMessage[] = [];
     const textMessages: TestMessage[] = [];
 
-    subscriber.subscribe((message) => numericMessages.push(message), {
-      filter: { type: "numeric" },
-    });
+    subscriber.subscribe(
+      (message) => {
+        numericMessages.push(message);
+      },
+      {
+        filter: { type: "numeric" },
+      },
+    );
 
-    subscriber.subscribe((message) => textMessages.push(message), {
-      filter: { type: "text" },
-    });
+    subscriber.subscribe(
+      (message) => {
+        textMessages.push(message);
+      },
+      {
+        filter: { type: "text" },
+      },
+    );
 
     await testUtil.wait(100);
 
@@ -50,21 +60,41 @@ describe("A Subscriber", () => {
     const numericMessages2: TestMessage[] = [];
     const textMessages2: TestMessage[] = [];
 
-    client1.subscribe((message) => numericMessages1.push(message), {
-      filter: { type: "numeric" },
-    });
+    client1.subscribe(
+      (message) => {
+        numericMessages1.push(message);
+      },
+      {
+        filter: { type: "numeric" },
+      },
+    );
 
-    client1.subscribe((message) => textMessages1.push(message), {
-      filter: { type: "text" },
-    });
+    client1.subscribe(
+      (message) => {
+        textMessages1.push(message);
+      },
+      {
+        filter: { type: "text" },
+      },
+    );
 
-    client2.subscribe((message) => numericMessages2.push(message), {
-      filter: { type: "numeric" },
-    });
+    client2.subscribe(
+      (message) => {
+        numericMessages2.push(message);
+      },
+      {
+        filter: { type: "numeric" },
+      },
+    );
 
-    client2.subscribe((message) => textMessages2.push(message), {
-      filter: { type: "text" },
-    });
+    client2.subscribe(
+      (message) => {
+        textMessages2.push(message);
+      },
+      {
+        filter: { type: "text" },
+      },
+    );
 
     await testUtil.wait(100);
 

@@ -2,7 +2,9 @@
 
 ## NEXT
 
-- BREAKING CHANGE: Require Node.js >= 18
+- BREAKING CHANGES
+  - Require Node.js >= 18
+  - Consumer and subscriber callbacks must return `void`
 - Update deps
 
 ## 0.4.0

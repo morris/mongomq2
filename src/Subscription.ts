@@ -3,8 +3,8 @@ import { RawObject } from "mingo/types";
 import { Document, Filter } from "mongodb";
 import { ErrorEvents } from "./ErrorEvents";
 import { PromiseTracker } from "./PromiseTracker";
-import { toError } from "./toError";
 import { TypedEventEmitter } from "./TypedEventEmitter";
+import { toError } from "./toError";
 
 export interface SubscriptionOptions<TMessage extends Document> {
   /** Local filter to apply on received messages (in-memory). */
@@ -13,7 +13,7 @@ export interface SubscriptionOptions<TMessage extends Document> {
 
 export type SubscriptionCallback<TMessage extends Document> = (
   message: TMessage,
-) => unknown;
+) => void | Promise<void>;
 
 export type SubscriptionEvents<TMessage extends Document> =
   ErrorEvents<TMessage>;

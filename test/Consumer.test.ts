@@ -19,7 +19,9 @@ describe("A Consumer", () => {
     const textMessages2: TextTestMessage[] = [];
 
     util.createConsumer<NumericTestMessage>(
-      (message) => numericMessages1.push(message),
+      (message) => {
+        numericMessages1.push(message);
+      },
       {
         filter: { type: "numeric" },
         group: "numeric",
@@ -27,7 +29,9 @@ describe("A Consumer", () => {
     );
 
     util.createConsumer<TextTestMessage>(
-      (message) => textMessages1.push(message),
+      (message) => {
+        textMessages1.push(message);
+      },
       {
         filter: { type: "text" },
         group: "text",
@@ -35,7 +39,9 @@ describe("A Consumer", () => {
     );
 
     util.createConsumer<NumericTestMessage>(
-      (message) => numericMessages2.push(message),
+      (message) => {
+        numericMessages2.push(message);
+      },
       {
         filter: { type: "numeric" },
         group: "numeric",
@@ -43,7 +49,9 @@ describe("A Consumer", () => {
     );
 
     util.createConsumer<TextTestMessage>(
-      (message) => textMessages2.push(message),
+      (message) => {
+        textMessages2.push(message);
+      },
       {
         filter: { type: "text" },
         group: "text",
@@ -281,21 +289,31 @@ describe("A Consumer", () => {
 
     const consumed: TextTestMessage[] = [];
 
-    util.createConsumer<TextTestMessage>((message) => consumed.push(message), {
-      group,
-      visibilityDelaySeconds: 10,
-      visibilityTimeoutSeconds: 2,
-      maxVisibilitySeconds: 60,
-      maxRetries: 2,
-    });
+    util.createConsumer<TextTestMessage>(
+      (message) => {
+        consumed.push(message);
+      },
+      {
+        group,
+        visibilityDelaySeconds: 10,
+        visibilityTimeoutSeconds: 2,
+        maxVisibilitySeconds: 60,
+        maxRetries: 2,
+      },
+    );
 
-    util.createConsumer<TextTestMessage>((message) => consumed.push(message), {
-      group,
-      visibilityDelaySeconds: 10,
-      visibilityTimeoutSeconds: 2,
-      maxVisibilitySeconds: 60,
-      maxRetries: 2,
-    });
+    util.createConsumer<TextTestMessage>(
+      (message) => {
+        consumed.push(message);
+      },
+      {
+        group,
+        visibilityDelaySeconds: 10,
+        visibilityTimeoutSeconds: 2,
+        maxVisibilitySeconds: 60,
+        maxRetries: 2,
+      },
+    );
 
     await util.waitUntilAcknowledged({ _id: messages[5]._id }, group);
 
