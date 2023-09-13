@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { TestUtil } from "./testUtil";
+import { TestFailure, TestUtil } from "./testUtil";
 
 describe("A BatchPublisher", () => {
   const util = new TestUtil(process.env);
@@ -81,5 +81,76 @@ describe("A BatchPublisher", () => {
     const messages = await util.collection.find({}).toArray();
 
     expect(messages).toEqual([]);
+  });
+
+  it("should publish messages in batches respecting maxBatchSize", async () => {
+    const publisher = util.createBatchPublisher({
+      batchDelayMs: 10,
+      maxBatchSize: 2,
+    });
+
+    publisher.publish({ type: "numeric", value: 1 });
+    publisher.publish({ type: "text", value: "hello" });
+    publisher.publish({ type: "text", value: "world" });
+
+    await util.wait(100);
+
+    const messages = await util.collection.find({}).toArray();
+
+    expect(messages).toEqual([
+      { _id: expect.any(ObjectId), type: "numeric", value: 1 },
+      { _id: expect.any(ObjectId), type: "text", value: "hello" },
+      { _id: expect.any(ObjectId), type: "text", value: "world" },
+    ]);
+  });
+
+  it("should publish messages in batches respecting maxBatchSize (queue size multiple of batch size)", async () => {
+    const publisher = util.createBatchPublisher({
+      batchDelayMs: 10,
+      maxBatchSize: 2,
+    });
+
+    publisher.publish({ type: "numeric", value: 1 });
+    publisher.publish({ type: "text", value: "hello" });
+    publisher.publish({ type: "text", value: "world" });
+    publisher.publish({ type: "numeric", value: 2 });
+
+    await util.wait(100);
+
+    const messages = await util.collection.find({}).toArray();
+
+    expect(messages).toEqual([
+      { _id: expect.any(ObjectId), type: "numeric", value: 1 },
+      { _id: expect.any(ObjectId), type: "text", value: "hello" },
+      { _id: expect.any(ObjectId), type: "text", value: "world" },
+      { _id: expect.any(ObjectId), type: "numeric", value: 2 },
+    ]);
+  });
+
+  it("should retry with best effort in case insertion failed", async () => {
+    const publisher = util.createBatchPublisher({
+      batchDelayMs: 10,
+      maxBatchSize: 2,
+    });
+
+    jest.spyOn(util.collection, "insertMany").mockImplementationOnce(() => {
+      throw new TestFailure("insertMany failed");
+    });
+
+    publisher.publish({ type: "numeric", value: 1 });
+    publisher.publish({ type: "text", value: "hello" });
+    publisher.publish({ type: "text", value: "world" });
+    publisher.publish({ type: "numeric", value: 2 });
+
+    await util.wait(200);
+
+    const messages = await util.collection.find({}).toArray();
+
+    expect(messages).toEqual([
+      { _id: expect.any(ObjectId), type: "numeric", value: 1 },
+      { _id: expect.any(ObjectId), type: "text", value: "hello" },
+      { _id: expect.any(ObjectId), type: "text", value: "world" },
+      { _id: expect.any(ObjectId), type: "numeric", value: 2 },
+    ]);
   });
 });

@@ -7,8 +7,8 @@ import {
 } from "mongodb";
 import { ErrorEvents } from "./ErrorEvents";
 import { Timeout } from "./Timeout";
-import { toError } from "./toError";
 import { TypedEventEmitter } from "./TypedEventEmitter";
+import { toError } from "./toError";
 
 export interface BatchPublisherOptions {
   /**
@@ -98,14 +98,13 @@ export class BatchPublisher<
 
     if (this.bestEffort) await this.flush();
 
+    this.flushTimeout.clear();
     this.queue = [];
   }
 
   protected async flush() {
     try {
-      if (this.queue.length === 0) return;
-
-      do {
+      while (this.queue.length > 0) {
         if (this.closed && !this.bestEffort) return;
 
         const batch = this.queue.slice(0, this.maxBatchSize);
@@ -116,13 +115,13 @@ export class BatchPublisher<
         } catch (err) {
           if (!(err instanceof MongoBulkWriteError && err.code === 11000)) {
             if (this.bestEffort) {
-              this.queue = [...this.queue, ...batch];
+              this.queue = [...batch, ...this.queue];
             }
 
             throw err;
           }
         }
-      } while (this.queue.length >= this.maxBatchSize);
+      }
     } catch (err) {
       this.emit("error", toError(err));
       this.flushTimeout.set(this.delayMs);

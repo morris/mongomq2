@@ -5,6 +5,7 @@
 - BREAKING CHANGES
   - Require Node.js >= 18
   - Consumer and subscriber callbacks must return `void`
+- Fix issue where `BatchPublisher` would not publish a message until next `publish` call
 - Update deps
 
 ## 0.4.0
