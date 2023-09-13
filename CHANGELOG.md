@@ -5,6 +5,7 @@
 - BREAKING CHANGES
   - Require Node.js >= 18
   - Consumer and subscriber callbacks must return `void`
+- Fix compatibility issues with `mongodb@4`, `mongodb@5`, `mongodb@6` (all supported)
 - Fix issue where `BatchPublisher` would not publish a message until next `publish` call
 - Remove casting to `Error`
 - Update deps

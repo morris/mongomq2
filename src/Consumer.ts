@@ -241,6 +241,7 @@ export class Consumer<
           [this.retryKey]: 1,
         },
       } as unknown as UpdateFilter<TMessage>,
+      { includeResultMetadata: true } as never, // mongodb@6 compat
     );
 
     return result.value;
