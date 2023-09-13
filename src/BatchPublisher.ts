@@ -8,7 +8,6 @@ import {
 import { ErrorEvents } from "./ErrorEvents";
 import { Timeout } from "./Timeout";
 import { TypedEventEmitter } from "./TypedEventEmitter";
-import { toError } from "./toError";
 
 export interface BatchPublisherOptions {
   /**
@@ -123,7 +122,7 @@ export class BatchPublisher<
         }
       }
     } catch (err) {
-      this.emit("error", toError(err));
+      this.emit("error", err as Error);
       this.flushTimeout.set(this.delayMs);
     }
   }

@@ -4,7 +4,6 @@ import { PromiseTracker } from "./PromiseTracker";
 import { Timeout } from "./Timeout";
 import { TypedEventEmitter } from "./TypedEventEmitter";
 import { WithOptionalObjectId } from "./WithOptionalObjectId";
-import { toError } from "./toError";
 
 export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
   /**
@@ -186,14 +185,14 @@ export class Consumer<
             // fast poll after successfully consumed message
             this.nextTimeout.set(0, 10);
           } catch (err) {
-            this.emit("error", toError(err), message as TMessage);
+            this.emit("error", err as Error, message as TMessage);
           }
         } else {
           this.emit("drained");
         }
       });
     } catch (err) {
-      this.emit("error", toError(err));
+      this.emit("error", err as Error);
     }
 
     this.pending -= 1;
@@ -291,7 +290,7 @@ export class Consumer<
         );
       }
     } catch (err) {
-      this.emit("error", toError(err));
+      this.emit("error", err as Error);
     }
 
     this.seekTimeout.set(

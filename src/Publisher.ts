@@ -6,7 +6,6 @@ import {
   OptionalUnlessRequiredId,
 } from "mongodb";
 import { PromiseTracker } from "./PromiseTracker";
-import { toError } from "./toError";
 
 export interface PublisherOptions {
   insertOneOptions?: InsertOneOptions;
@@ -43,7 +42,7 @@ export class Publisher<TMessage extends Document> {
         return null;
       }
 
-      throw toError(err);
+      throw err;
     }
   }
 
