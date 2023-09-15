@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.0.0
 
 - BREAKING CHANGES
   - Require Node.js >= 18
