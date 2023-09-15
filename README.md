@@ -6,12 +6,12 @@
 
 MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into
 **general-purpose message queues** or event logs,
-without additional deployments.
+_without_ additional deployments or infrastructure.
 
 At a slight expense of throughput compared to specialized
 message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
 
-- Persistent message/event logs in MongoDB collections.
+- Durable message/event logs in MongoDB collections.
 - Real-time, fan-out, at-most-once delivery to **subscribers**.
 - Isolated, acknowledged, at-least-once delivery to **queue consumers**.
   - Effectively exactly-once if consumer workloads are idempotent.
@@ -23,7 +23,7 @@ message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
   - sharding,
   - and TTL indexes.
 - No chaining of queues required because subscribers and consumers can read from the same queue.
-- Low-cost ops (no additional deployments needed)
+- Low-cost ops (no additional infrastructure besides a Node.js apps and MongoDB)
 
 There's more:
 
@@ -138,7 +138,7 @@ messageQueue.publishBatched({ type: "input" });
 
 - Queues the given message for publication in memory.
 - Bulk inserts batched messages after a configurable delay.
-- By default publishes messages with best effort (`majority` write concern, retries)
+- By default, publishes messages with best effort (`majority` write concern, retries)
 - Can be set to "fire & forget" mode by passing `bestEffort: false` (no write concern, no retries)
 
 Useful for:
@@ -208,7 +208,7 @@ Useful for:
 - Real-time notifications
 - Cache invalidation
 
-## Notes
+### Additional Usage Notes
 
 - All MongoMQ2 clients are `EventEmitters`.
 - Always attach `.on('error', (err, message?) => /* report error */)` to monitor errors.
@@ -216,3 +216,31 @@ Useful for:
   - MongoMQ2 will try to finish open tasks with best effort.
 - MongoDB change streams are only supported for MongoDB replica sets.
   - To start a one-node replica set locally (e.g. for testing), see `docker-compose.yml`.
+- MongoMQ2 relies on the `_id` index which always exists (no other indexes required)
+- MongoMQ2 stores metadata for consumers in a `_c` field per message document (no other metadata is generated)
+
+## Performance
+
+Generally, MongoMQ2 is bound by the performance and latency
+of the underlying MongoDB. For common workloads
+(message size ~1 KB, produced and consumed in the same time frame),
+MongoMQ2 should be able to handle **at least ~100 messages
+per second** in most environments; plenty for a variety of use cases.
+
+See `test/benchmarks` for a benchmark suite
+(as of yet, severely lacking - PRs welcome!).
+
+### Additional Notes regarding Performance
+
+Publishing/producing messages in MongoMQ2 is bound by insertion time
+on the message collection. Insertion time depends on message size
+and number of indexes on the message collection.
+As stated above, the simplest use cases only need the `_id` index.
+
+Consumers are bound by MongoDB `findOneAndUpdate` performance, which will
+usually perform an index scan (`IXSCAN`) on the `_id` index. This scan is mainly
+bound by the number of messages currently being consumed, as consumers are
+able to seek efficiently based on `_id` via time-based ordering.
+
+Additionally, `findOneAndUpdate` performs some locking internally,
+which may degrade for large numbers of concurrent producers/consumers.
