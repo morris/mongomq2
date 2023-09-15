@@ -53,6 +53,14 @@ export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
    * Defaults to 1000 milliseconds.
    */
   pollMs?: number;
+
+  /**
+   * Maximum follow-up polling delay in milliseconds.
+   * Consumers will fast-poll while concurrency is not reached,
+   * and after a message is successfully consumed.
+   * Defaults to 10 milliseconds.
+   */
+  fastPollMs?: number;
 }
 
 export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
@@ -76,6 +84,7 @@ export class Consumer<
   protected maxVisibilitySeconds: number;
   protected maxRetries: number;
   protected pollMs: number;
+  protected fastPollMs: number;
   protected callback: ConsumerCallback<TMessage>;
   protected visibilityKey: string;
   protected retryKey: string;
@@ -104,6 +113,7 @@ export class Consumer<
     this.maxVisibilitySeconds = options.maxVisibilitySeconds ?? 60 * 60;
     this.maxRetries = options.maxRetries ?? 1;
     this.pollMs = options.pollMs ?? 1000;
+    this.fastPollMs = options.pollMs ?? 3;
 
     this.visibilityKey = `_c.${this.group}.v`;
     this.retryKey = `_c.${this.group}.r`;
@@ -170,7 +180,7 @@ export class Consumer<
 
     if (this.pending < this.concurrency) {
       // fast poll if maximum concurrency is not reached
-      this.nextTimeout.set(0, 10);
+      this.nextTimeout.set(0, this.fastPollMs);
     }
 
     try {
@@ -183,7 +193,7 @@ export class Consumer<
             await this.ack(message);
 
             // fast poll after successfully consumed message
-            this.nextTimeout.set(0, 10);
+            this.nextTimeout.set(0, this.fastPollMs);
           } catch (err) {
             this.emit("error", err as Error, message as TMessage);
           }
