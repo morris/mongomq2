@@ -8,7 +8,7 @@ MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into
 **general-purpose message queues** or event logs,
 _without_ additional deployments or infrastructure.
 
-At a slight expense of throughput compared to specialized
+At an expense of throughput compared to specialized
 message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
 
 - Durable message/event logs in MongoDB collections.
@@ -208,7 +208,7 @@ Useful for:
 - Real-time notifications
 - Cache invalidation
 
-### Additional Usage Notes
+### Additional Notes
 
 - All MongoMQ2 clients are `EventEmitters`.
 - Always attach `.on('error', (err, message?) => /* report error */)` to monitor errors.
@@ -221,16 +221,23 @@ Useful for:
 
 ## Performance
 
-Generally, MongoMQ2 is bound by the performance and latency
-of the underlying MongoDB. For common workloads
+For common workloads
 (message size ~1 KB, produced and consumed in the same time frame),
-MongoMQ2 should be able to handle **at least ~100 messages
+MongoMQ2 should be able to handle **hundreds of messages
 per second** in most environments; plenty for a variety of use cases.
 
-See `test/benchmarks` for a benchmark suite
-(as of yet, severely lacking - PRs welcome!).
+As discussed earlier, MongoMQ2's trade-offs are
 
-### Additional Notes regarding Performance
+- less infrastructure,
+- more flexibility,
+- but therefore less specialization on queuing (e.g. performance/throughput).
+
+Your mileage may vary.
+
+---
+
+Generally, MongoMQ2 is bound by the performance and latency
+of the underlying MongoDB.
 
 Publishing/producing messages in MongoMQ2 is bound by insertion time
 on the message collection. Insertion time depends on message size
@@ -244,3 +251,6 @@ able to seek efficiently based on `_id` via time-based ordering.
 
 Additionally, `findOneAndUpdate` performs some locking internally,
 which may degrade for large numbers of concurrent producers/consumers.
+
+See `test/benchmarks` for a benchmark suite
+(as of yet, severely lacking - PRs welcome!).
