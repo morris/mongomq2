@@ -17,11 +17,11 @@
 <a href="https://app.codecov.io/gh/morris/mongomq2"><img src="https://img.shields.io/codecov/c/github/morris/mongomq2?style=flat-square&token=5GBOZPEJW0" alt="Coverage"></a></p>
 <p>MongoMQ2 is a light-weight Node.js library that turns MongoDB collections into
 <strong>general-purpose message queues</strong> or event logs,
-without additional deployments.</p>
-<p>At a slight expense of throughput compared to specialized
+<em>without</em> additional deployments or infrastructure.</p>
+<p>At an expense of throughput compared to specialized
 message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:</p>
 <ul>
-<li>Persistent message/event logs in MongoDB collections.</li>
+<li>Durable message/event logs in MongoDB collections.</li>
 <li>Real-time, fan-out, at-most-once delivery to <strong>subscribers</strong>.</li>
 <li>Isolated, acknowledged, at-least-once delivery to <strong>queue consumers</strong>.<ul>
 <li>Effectively exactly-once if consumer workloads are idempotent.</li>
@@ -37,7 +37,7 @@ message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:</p>
 </ul>
 </li>
 <li>No chaining of queues required because subscribers and consumers can read from the same queue.</li>
-<li>Low-cost ops (no additional deployments needed)</li>
+<li>Low-cost ops (no additional infrastructure besides a Node.js apps and MongoDB)</li>
 </ul>
 <p>There&#39;s more:</p>
 <ul>
@@ -74,7 +74,7 @@ and don&#39;t want to introduce additional system components to deploy and opera
 <ul>
 <li>Queues the given message for publication in memory.</li>
 <li>Bulk inserts batched messages after a configurable delay.</li>
-<li>By default publishes messages with best effort (<code>majority</code> write concern, retries)</li>
+<li>By default, publishes messages with best effort (<code>majority</code> write concern, retries)</li>
 <li>Can be set to &quot;fire &amp; forget&quot; mode by passing <code>bestEffort: false</code> (no write concern, no retries)</li>
 </ul>
 <p>Useful for:</p>
@@ -122,7 +122,7 @@ and don&#39;t want to introduce additional system components to deploy and opera
 <li>Real-time notifications</li>
 <li>Cache invalidation</li>
 </ul>
-<a id="md:notes" class="tsd-anchor"></a><h2><a href="#md:notes">Notes</a></h2><ul>
+<a id="md:additional-notes" class="tsd-anchor"></a><h3><a href="#md:additional-notes">Additional Notes</a></h3><ul>
 <li>All MongoMQ2 clients are <code>EventEmitters</code>.</li>
 <li>Always attach <code>.on(&#39;error&#39;, (err, message?) =&gt; /* report error */)</code> to monitor errors.</li>
 <li>Always <code>.close()</code> MongoMQ2 clients on shutdown (before closing the MongoClient).<ul>
@@ -133,7 +133,35 @@ and don&#39;t want to introduce additional system components to deploy and opera
 <li>To start a one-node replica set locally (e.g. for testing), see <code>docker-compose.yml</code>.</li>
 </ul>
 </li>
+<li>MongoMQ2 relies on the <code>_id</code> index which always exists (no other indexes required)</li>
+<li>MongoMQ2 stores metadata for consumers in a <code>_c</code> field per message document (no other metadata is generated)</li>
 </ul>
+<a id="md:performance" class="tsd-anchor"></a><h2><a href="#md:performance">Performance</a></h2><p>For common workloads
+(message size ~1 KB, produced and consumed in the same time frame),
+MongoMQ2 should be able to handle <strong>hundreds of messages
+per second</strong> in most environments; plenty for a variety of use cases.</p>
+<p>As discussed earlier, MongoMQ2&#39;s trade-offs are</p>
+<ul>
+<li>less infrastructure,</li>
+<li>more flexibility,</li>
+<li>but therefore less specialization on queuing (e.g. performance/throughput).</li>
+</ul>
+<p>Your mileage may vary.</p>
+<hr>
+<p>Generally, MongoMQ2 is bound by the performance and latency
+of the underlying MongoDB.</p>
+<p>Publishing/producing messages in MongoMQ2 is bound by insertion time
+on the message collection. Insertion time depends on message size
+and number of indexes on the message collection.
+As stated above, the simplest use cases only need the <code>_id</code> index.</p>
+<p>Consumers are bound by MongoDB <code>findOneAndUpdate</code> performance, which will
+usually perform an index scan (<code>IXSCAN</code>) on the <code>_id</code> index. This scan is mainly
+bound by the number of messages currently being consumed, as consumers are
+able to seek efficiently based on <code>_id</code> via time-based ordering.</p>
+<p>Additionally, <code>findOneAndUpdate</code> performs some locking internally,
+which may degrade for large numbers of concurrent producers/consumers.</p>
+<p>See <code>test/benchmarks</code> for a benchmark suite
+(as of yet, severely lacking - PRs welcome!).</p>
 </div></div>
 <div class="col-sidebar">
 <div class="page-menu">
@@ -166,8 +194,9 @@ and don&#39;t want to introduce additional system components to deploy and opera
 <li><a href="#md:publishing"><span>Publishing</span></a></li>
 <li><a href="#md:batched-publishing"><span>Batched <wbr/>Publishing</span></a></li>
 <li><a href="#md:consumers"><span>Consumers</span></a></li>
-<li><a href="#md:subscriptions"><span>Subscriptions</span></a></li></ul></li>
-<li><a href="#md:notes"><span>Notes</span></a></li></ul></li></ul></li></ul></div></details></div>
+<li><a href="#md:subscriptions"><span>Subscriptions</span></a></li>
+<li><a href="#md:additional-notes"><span>Additional <wbr/>Notes</span></a></li></ul></li>
+<li><a href="#md:performance"><span>Performance</span></a></li></ul></li></ul></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="modules.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>mongomq2</span></a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base=".">

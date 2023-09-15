@@ -27,7 +27,7 @@
 <ul class="tsd-hierarchy">
 <li><a href="MessageQueueOptions.html" class="tsd-signature-type tsd-kind-interface">MessageQueueOptions</a></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L8">src/Consumer.ts:8</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L8">src/Consumer.ts:8</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -36,6 +36,7 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="ConsumerOptions.html#concurrency" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>concurrency?</span></a>
+<a href="ConsumerOptions.html#fastPollMs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>fast<wbr/>Poll<wbr/>Ms?</span></a>
 <a href="ConsumerOptions.html#filter" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>filter?</span></a>
 <a href="ConsumerOptions.html#group" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>group?</span></a>
 <a href="ConsumerOptions.html#maxRetries" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>max<wbr/>Retries?</span></a>
@@ -54,7 +55,18 @@ Defaults to 1.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L24">src/Consumer.ts:24</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L24">src/Consumer.ts:24</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="fastPollMs" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>fast<wbr/>Poll<wbr/>Ms</span><a href="#fastPollMs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">fast<wbr/>Poll<wbr/>Ms</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Maximum follow-up polling delay in milliseconds.
+Consumers will fast-poll while concurrency is not reached,
+and after a message is successfully consumed.
+Defaults to 10 milliseconds.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L63">src/Consumer.ts:63</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="filter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>filter</span><a href="#filter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">filter</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">Filter</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TMessage</span><span class="tsd-signature-symbol">&gt;</span></div>
@@ -62,7 +74,7 @@ Defaults to 1.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L12">src/Consumer.ts:12</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L12">src/Consumer.ts:12</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="group" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>group</span><a href="#group" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">group</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -71,7 +83,7 @@ Defaults to the collection name.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L18">src/Consumer.ts:18</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L18">src/Consumer.ts:18</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="maxRetries" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>max<wbr/>Retries</span><a href="#maxRetries" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">max<wbr/>Retries</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -80,7 +92,7 @@ Defaults to 1.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L49">src/Consumer.ts:49</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L49">src/Consumer.ts:49</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="maxVisibilitySeconds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>max<wbr/>Visibility<wbr/>Seconds</span><a href="#maxVisibilitySeconds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">max<wbr/>Visibility<wbr/>Seconds</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -89,7 +101,7 @@ Defaults to 3600 seconds (1 hour).</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L43">src/Consumer.ts:43</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L43">src/Consumer.ts:43</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="pollMs" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>poll<wbr/>Ms</span><a href="#pollMs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">poll<wbr/>Ms</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -98,7 +110,7 @@ Defaults to 1000 milliseconds.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L55">src/Consumer.ts:55</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L55">src/Consumer.ts:55</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="visibilityDelaySeconds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>visibility<wbr/>Delay<wbr/>Seconds</span><a href="#visibilityDelaySeconds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">visibility<wbr/>Delay<wbr/>Seconds</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -107,7 +119,7 @@ Defaults to zero.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L37">src/Consumer.ts:37</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L37">src/Consumer.ts:37</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="visibilityTimeoutSeconds" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>visibility<wbr/>Timeout<wbr/>Seconds</span><a href="#visibilityTimeoutSeconds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">visibility<wbr/>Timeout<wbr/>Seconds</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -117,7 +129,7 @@ Defaults to 2 seconds.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/morris/mongomq2/blob/f005114/src/Consumer.ts#L31">src/Consumer.ts:31</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/morris/mongomq2/blob/fde2b04/src/Consumer.ts#L31">src/Consumer.ts:31</a></li></ul></aside></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -136,6 +148,7 @@ Defaults to 2 seconds.</p>
 <div class="tsd-accordion-details">
 <ul>
 <li><a href="#concurrency" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>concurrency</span></a></li>
+<li><a href="#fastPollMs" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>fast<wbr/>Poll<wbr/>Ms</span></a></li>
 <li><a href="#filter" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>filter</span></a></li>
 <li><a href="#group" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>group</span></a></li>
 <li><a href="#maxRetries" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>max<wbr/>Retries</span></a></li>
