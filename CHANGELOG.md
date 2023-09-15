@@ -7,7 +7,9 @@
   - Consumer and subscriber callbacks must return `void`
 - Fix compatibility issues with `mongodb@4`, `mongodb@5`, `mongodb@6` (all supported)
 - Fix issue where `BatchPublisher` would not publish a message until next `publish` call
+- Add `fastPollMs` option to consumers
 - Remove casting to `Error`
+- Add preliminary benchmarks
 - Update deps
 
 ## 0.4.0
