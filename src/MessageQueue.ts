@@ -1,4 +1,4 @@
-import { Collection, Filter, OptionalUnlessRequiredId } from "mongodb";
+import { Collection, Filter, OptionalUnlessRequiredId, WithId } from "mongodb";
 import {
   BatchPublisher,
   BatchPublisherEvents,
@@ -95,8 +95,13 @@ export class MessageQueue<
       },
     );
 
-    consumer.on("error", (err, message) => this.emit("error", err, message));
-    consumer.on("drained", () => this.emit("drained"));
+    consumer.on("error", (err, message, group) =>
+      this.emit("error", err, message, group),
+    );
+    consumer.on("deadLetter", (err, message, group) =>
+      this.emit("deadLetter", err, message as WithId<TMessage>, group),
+    );
+    consumer.on("drained", (group) => this.emit("drained", group));
 
     this.consumers.push(consumer as unknown as Consumer<TMessage>);
 

@@ -1,4 +1,4 @@
-import { Collection, Filter, MongoClient } from "mongodb";
+import { Collection, Filter, MongoClient, WithId } from "mongodb";
 import {
   BatchPublisher,
   BatchPublisherOptions,
@@ -36,6 +36,7 @@ export class TestUtil {
   public readonly subscribers: Subscriber<TestMessage>[] = [];
   public readonly consumers: Consumer<TestMessage>[] = [];
   public readonly emittedErrors: Error[] = [];
+  public readonly deadLetters: WithId<TestMessage>[] = [];
 
   constructor(env: Record<string, string | undefined>) {
     this.mongoClient = new MongoClient(
@@ -72,12 +73,14 @@ export class TestUtil {
       // invariants
       try {
         expect(this.emittedErrors).toEqual([]);
+        expect(this.deadLetters).toEqual([]);
       } finally {
         this.publishers.length = 0;
         this.batchPublishers.length = 0;
         this.subscribers.length = 0;
         this.consumers.length = 0;
         this.emittedErrors.length = 0;
+        this.deadLetters.length = 0;
       }
     });
 
@@ -133,6 +136,11 @@ export class TestUtil {
     consumer.on("error", (err) => {
       if (err instanceof TestFailure) return;
       this.emittedErrors.push(err);
+    });
+
+    consumer.on("deadLetter", (err, message) => {
+      if (err instanceof TestFailure) return;
+      this.deadLetters.push(message as WithId<TestMessage>);
     });
 
     consumer.start();

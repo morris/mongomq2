@@ -103,16 +103,14 @@ await messageQueue.publish({ type: "input", data: "world" });
 
 ## Usage
 
+(See [API documentation](https://morris.github.io/mongomq2/)
+for a detailed reference of all configuration and functionalities.)
+
 ### Setup
 
 ```ts
-const messageQueue = new MessageQueue(collection);
-
-const messageQueue = new MessageQueue(collection, {
-  filter: {
-    // optional global filter applied on all subscribers and consumers
-  },
-});
+const messageCollection = mongoClient.db().collection<MyMessage>("messages");
+const messageQueue = new MessageQueue(messageCollection);
 ```
 
 ### Publishing
@@ -161,6 +159,10 @@ messageQueue.consume(
     },
   },
 );
+
+messageQueue.on("deadLetter", (err, message, group) => {
+  // handle dead letter, i.e. message that failed repeatedly and exhausted maxRetries
+});
 ```
 
 - Consumes future and past matching messages.
@@ -211,7 +213,7 @@ Useful for:
 ### Additional Notes
 
 - All MongoMQ2 clients are `EventEmitters`.
-- Always attach `.on('error', (err, message?) => /* report error */)` to monitor errors.
+- Always attach `.on('error', (err, message?, group?) => /* report error */)` to monitor errors.
 - Always `.close()` MongoMQ2 clients on shutdown (before closing the MongoClient).
   - MongoMQ2 will try to finish open tasks with best effort.
 - MongoDB change streams are only supported for MongoDB replica sets.

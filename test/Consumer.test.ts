@@ -3,6 +3,7 @@ import { Publisher } from "../src";
 import {
   NumericTestMessage,
   TestFailure,
+  TestMessage,
   TestUtil,
   TextTestMessage,
 } from "./testUtil";
@@ -323,4 +324,68 @@ describe("A Consumer", () => {
       { value: "should be consumed 3" },
     ]);
   });
+
+  it("should emit deadLetter events when retries are exhausted", async () => {
+    const group = "testGroup";
+    const consumed: TestMessage[] = [];
+    let errors = 0;
+    const deadLetters: TestMessage[] = [];
+
+    const consumer = util.createConsumer(
+      (message) => {
+        if (message.value === "fail") {
+          throw new TestFailure("always fails");
+        }
+
+        consumed.push(message);
+      },
+      {
+        group,
+        maxRetries: 3,
+        pollMs: 10,
+        fastPollMs: 10,
+        visibilityTimeoutSeconds: 1,
+      },
+    );
+
+    consumer.on("error", () => ++errors);
+
+    consumer.on("deadLetter", (err, message) => {
+      deadLetters.push(message);
+    });
+
+    const publisher = util.createPublisher();
+
+    await publisher.publish({
+      type: "text",
+      value: "ok1",
+    });
+
+    await publisher.publish({
+      type: "text",
+      value: "ok2",
+    });
+
+    await publisher.publish({
+      type: "text",
+      value: "fail",
+    });
+
+    await publisher.publish({
+      type: "text",
+      value: "ok3",
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    expect(consumed).toMatchObject([
+      { value: "ok1" },
+      { value: "ok2" },
+      { value: "ok3" },
+    ]);
+
+    expect(errors).toBe(4); // 1 initial try + 3 retries
+    expect(deadLetters.length).toBe(1);
+    expect(deadLetters[0]).toMatchObject({ value: "fail" });
+  }, 300000);
 });

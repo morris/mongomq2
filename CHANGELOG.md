@@ -1,5 +1,10 @@
 # Changelog
 
+## NEXT
+
+- Add `group` to consumer event callback signature
+- Add `deadLetter` event to handle permanently failed messages
+
 ## 1.0.0
 
 - BREAKING CHANGES

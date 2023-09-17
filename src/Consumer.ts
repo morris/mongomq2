@@ -65,12 +65,25 @@ export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
 
 export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
   extends ErrorEvents<TMessage> {
-  drained: () => void;
+  deadLetter: (err: Error, message: WithId<TMessage>, group: string) => void;
+  drained: (group: string) => void;
 }
 
 export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
   message: WithId<TMessage>,
 ) => void | Promise<void>;
+
+export interface ConsumerMetadata {
+  _c?: Record<
+    string,
+    | {
+        v?: number;
+        r?: number;
+        a?: number;
+      }
+    | undefined
+  >;
+}
 
 export class Consumer<
   TMessage extends WithOptionalObjectId,
@@ -195,10 +208,17 @@ export class Consumer<
             // fast poll after successfully consumed message
             this.nextTimeout.set(0, this.fastPollMs);
           } catch (err) {
-            this.emit("error", err as Error, message as TMessage);
+            this.emit("error", err as Error, message as TMessage, this.group);
+
+            const metadata = message as ConsumerMetadata;
+            const retries = metadata._c?.[this.group]?.r ?? 0;
+
+            if (retries >= this.maxRetries) {
+              this.emit("deadLetter", err as Error, message, this.group);
+            }
           }
         } else {
-          this.emit("drained");
+          this.emit("drained", this.group);
         }
       });
     } catch (err) {
