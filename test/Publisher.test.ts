@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { TestUtil } from './testUtil';
+import { TestUtil } from './TestUtil';
 
 describe('A Publisher', () => {
   const testUtil = new TestUtil(process.env);

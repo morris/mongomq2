@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { TestFailure, TestUtil } from './testUtil';
+import { TestFailure, TestUtil } from './TestUtil';
 
 describe('A BatchPublisher', () => {
   const testUtil = new TestUtil(process.env);

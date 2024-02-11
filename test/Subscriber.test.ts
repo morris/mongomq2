@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { TestFailure, TestMessage, TestUtil } from './testUtil';
+import { TestFailure, TestMessage, TestUtil } from './TestUtil';
 
 describe('A Subscriber', () => {
   const testUtil = new TestUtil(process.env);

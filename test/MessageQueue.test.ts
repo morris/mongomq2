@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { MessageQueue } from '../src';
-import { TestUtil } from './testUtil';
+import { TestUtil } from './TestUtil';
 
 describe('The MessageQueue', () => {
   const testUtil = new TestUtil(process.env);

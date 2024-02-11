@@ -6,7 +6,7 @@ import {
   TestMessage,
   TestUtil,
   TextTestMessage,
-} from './testUtil';
+} from './TestUtil';
 
 describe('A Consumer', () => {
   const testUtil = new TestUtil(process.env);
