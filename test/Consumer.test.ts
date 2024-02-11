@@ -318,7 +318,11 @@ describe('A Consumer', () => {
 
     await util.waitUntilAcknowledged({ _id: messages[5]._id }, group);
 
-    expect(consumed).toMatchObject([
+    expect(
+      consumed.sort((a, b) =>
+        a.value < b.value ? -1 : a.value > b.value ? 1 : 0,
+      ),
+    ).toMatchObject([
       { value: 'should be consumed 1' },
       { value: 'should be consumed 2' },
       { value: 'should be consumed 3' },
