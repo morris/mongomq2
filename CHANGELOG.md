@@ -2,7 +2,7 @@
 
 ## NEXT
 
-- Allow passing session and other options to `publish`
+- Allow passing session and other options to `Publisher.publish`
 - Update deps
 
 ## 1.1.0

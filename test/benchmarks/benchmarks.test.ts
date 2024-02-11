@@ -95,6 +95,7 @@ describe('Benchmarks', () => {
           url,
         },
       ];
+
   it.each(benchmarks)(
     '...',
     async (options) => {

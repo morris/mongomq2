@@ -37,7 +37,7 @@
     "lint": "eslint .",
     "test": "jest --runInBand --coverage",
     "build": "tsc --project tsconfig.build.json",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf coverage dist",
     "docs": "typedoc src/index.ts --excludeProtected --excludePrivate"
   },
   "peerDependencies": {
