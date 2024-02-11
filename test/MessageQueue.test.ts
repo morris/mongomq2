@@ -3,7 +3,7 @@ import { MessageQueue } from '../src';
 import { TestUtil } from './testUtil';
 
 describe('The MessageQueue', () => {
-  const util = new TestUtil(process.env);
+  const testUtil = new TestUtil(process.env);
 
   it('should correctly run the example in the README', async () => {
     const logs: string[] = [];
@@ -12,7 +12,7 @@ describe('The MessageQueue', () => {
       logs.push(message);
     }
 
-    const mongoClient = util.mongoClient;
+    const mongoClient = testUtil.mongoClient;
 
     type MyMessage = InputMessage | OutputMessage;
 
@@ -85,7 +85,7 @@ describe('The MessageQueue', () => {
     }
 
     const queue = new MessageQueue<MyMessage>(
-      util.mongoClient.db().collection<MyMessage>('messages'),
+      testUtil.mongoClient.db().collection<MyMessage>('messages'),
       { filter: { type: 'a' } },
     );
 

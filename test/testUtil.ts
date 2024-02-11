@@ -150,19 +150,26 @@ export class TestUtil {
     return consumer;
   }
 
-  async wait(ms: number) {
-    await new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   async waitUntilAcknowledged(filter: Filter<TestMessage>, group: string) {
-    while (true) {
-      const unacknowledgedCount = await this.collection.count({
+    await this.waitUntil(async () => {
+      const unacknowledgedCount = await this.collection.countDocuments({
         $and: [filter, { [`_c.${group}.a`]: { $exists: false } }],
       });
 
-      if (unacknowledgedCount === 0) return;
+      return unacknowledgedCount === 0;
+    });
+  }
 
-      await this.wait(100);
+  async waitUntil(
+    conditionFn: () => boolean | undefined | Promise<boolean | undefined>,
+    interval = 100,
+  ) {
+    while (!(await conditionFn())) {
+      await this.wait(interval);
     }
+  }
+
+  async wait(ms: number) {
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

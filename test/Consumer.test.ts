@@ -9,17 +9,17 @@ import {
 } from './testUtil';
 
 describe('A Consumer', () => {
-  const util = new TestUtil(process.env);
+  const testUtil = new TestUtil(process.env);
 
   it('should be able to publish and consume messages (2 consumers, 4 messages)', async () => {
-    const publisher = new Publisher(util.collection);
+    const publisher = new Publisher(testUtil.collection);
 
     const numericMessages1: NumericTestMessage[] = [];
     const textMessages1: TextTestMessage[] = [];
     const numericMessages2: NumericTestMessage[] = [];
     const textMessages2: TextTestMessage[] = [];
 
-    util.createConsumer<NumericTestMessage>(
+    testUtil.createConsumer<NumericTestMessage>(
       (message) => {
         numericMessages1.push(message);
       },
@@ -29,7 +29,7 @@ describe('A Consumer', () => {
       },
     );
 
-    util.createConsumer<TextTestMessage>(
+    testUtil.createConsumer<TextTestMessage>(
       (message) => {
         textMessages1.push(message);
       },
@@ -39,7 +39,7 @@ describe('A Consumer', () => {
       },
     );
 
-    util.createConsumer<NumericTestMessage>(
+    testUtil.createConsumer<NumericTestMessage>(
       (message) => {
         numericMessages2.push(message);
       },
@@ -49,7 +49,7 @@ describe('A Consumer', () => {
       },
     );
 
-    util.createConsumer<TextTestMessage>(
+    testUtil.createConsumer<TextTestMessage>(
       (message) => {
         textMessages2.push(message);
       },
@@ -64,8 +64,8 @@ describe('A Consumer', () => {
     await publisher.publish({ type: 'text', value: 'hello' });
     await publisher.publish({ type: 'text', value: 'world' });
 
-    await util.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
-    await util.waitUntilAcknowledged({ type: 'text' }, 'text');
+    await testUtil.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
+    await testUtil.waitUntilAcknowledged({ type: 'text' }, 'text');
 
     expect(
       [...numericMessages1, ...numericMessages2].sort(
@@ -107,13 +107,13 @@ describe('A Consumer', () => {
       const optionsForLabel = JSON.stringify(options, null, 2);
 
       it(`should be able to publish and consume messages; ${optionsForLabel}`, async () => {
-        const publisher = new Publisher(util.collection);
+        const publisher = new Publisher(testUtil.collection);
 
         const numericMessages: NumericTestMessage[] = [];
         const textMessages: TextTestMessage[] = [];
 
         for (let i = 0; i < numberOfConsumers; ++i) {
-          util.createConsumer<NumericTestMessage>(
+          testUtil.createConsumer<NumericTestMessage>(
             (message) => {
               if (Math.random() < failureRate / 2) {
                 throw new TestFailure('Failure before workload');
@@ -134,7 +134,7 @@ describe('A Consumer', () => {
             },
           );
 
-          util.createConsumer<TextTestMessage>(
+          testUtil.createConsumer<TextTestMessage>(
             (message) => {
               if (Math.random() < failureRate / 2) {
                 throw new TestFailure('Failure before workload');
@@ -173,8 +173,8 @@ describe('A Consumer', () => {
 
         await Promise.all([p1, p2]);
 
-        await util.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
-        await util.waitUntilAcknowledged({ type: 'text' }, 'text');
+        await testUtil.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
+        await testUtil.waitUntilAcknowledged({ type: 'text' }, 'text');
 
         if (failureRate > 0) {
           expect(
@@ -286,11 +286,11 @@ describe('A Consumer', () => {
       },
     ] as TextTestMessage[];
 
-    await util.collection.insertMany(messages);
+    await testUtil.collection.insertMany(messages);
 
     const consumed: TextTestMessage[] = [];
 
-    util.createConsumer<TextTestMessage>(
+    testUtil.createConsumer<TextTestMessage>(
       (message) => {
         consumed.push(message);
       },
@@ -303,7 +303,7 @@ describe('A Consumer', () => {
       },
     );
 
-    util.createConsumer<TextTestMessage>(
+    testUtil.createConsumer<TextTestMessage>(
       (message) => {
         consumed.push(message);
       },
@@ -316,7 +316,7 @@ describe('A Consumer', () => {
       },
     );
 
-    await util.waitUntilAcknowledged({ _id: messages[5]._id }, group);
+    await testUtil.waitUntilAcknowledged({ _id: messages[5]._id }, group);
 
     expect(
       consumed.sort((a, b) =>
@@ -335,7 +335,7 @@ describe('A Consumer', () => {
     let errors = 0;
     const deadLetters: TestMessage[] = [];
 
-    const consumer = util.createConsumer(
+    const consumer = testUtil.createConsumer(
       (message) => {
         if (message.value === 'fail') {
           throw new TestFailure('always fails');
@@ -358,7 +358,7 @@ describe('A Consumer', () => {
       deadLetters.push(message);
     });
 
-    const publisher = util.createPublisher();
+    const publisher = testUtil.createPublisher();
 
     await publisher.publish({
       type: 'text',
@@ -380,7 +380,7 @@ describe('A Consumer', () => {
       value: 'ok3',
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await testUtil.waitUntil(() => consumed.length >= 3);
 
     expect(consumed).toMatchObject([
       { value: 'ok1' },
@@ -388,8 +388,10 @@ describe('A Consumer', () => {
       { value: 'ok3' },
     ]);
 
+    await testUtil.waitUntil(() => deadLetters.length >= 1);
+
     expect(errors).toBe(4); // 1 initial try + 3 retries
     expect(deadLetters.length).toBe(1);
     expect(deadLetters[0]).toMatchObject({ value: 'fail' });
-  }, 300000);
+  });
 });

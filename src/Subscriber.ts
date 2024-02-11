@@ -57,9 +57,9 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
    *  - so you'll usually want only one `Subscriber` instance,
    *  - and multiple `.subscribe()` calls with local filters.
    */
-  subscribe<TSpecificEvent extends TMessage>(
-    callback: SubscriptionCallback<TSpecificEvent>,
-    options: SubscriptionOptions<TSpecificEvent> = {},
+  subscribe<TSpecificMessage extends TMessage>(
+    callback: SubscriptionCallback<TSpecificMessage>,
+    options: SubscriptionOptions<TSpecificMessage> = {},
   ) {
     if (this.closed) throw new Error('Subscriber closed');
 
