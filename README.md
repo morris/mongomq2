@@ -20,10 +20,11 @@ message queues and brokers like SQS, SNS, RabbitMQ or Kafka, you get:
   - unique indexes for message/event deduplication,
   - aggregations,
   - capped collections,
+  - transactions,
   - sharding,
   - and TTL indexes.
 - No chaining of queues required because subscribers and consumers can read from the same queue.
-- Low-cost ops (no additional infrastructure besides a Node.js apps and MongoDB)
+- Low-cost ops (no additional infrastructure besides a Node.js app and MongoDB)
 
 There's more:
 
@@ -127,6 +128,8 @@ Useful for:
 - Critical messages and events
 - Job ingestion
 - Commands
+
+Can be used inside transactions by passing a session (same as MongoDB `insertOne`).
 
 ### Batched Publishing
 

@@ -5,7 +5,6 @@ import {
   MongoServerError,
   OptionalUnlessRequiredId,
 } from 'mongodb';
-import { PromiseTracker } from './PromiseTracker';
 
 export interface PublisherOptions {
   insertOneOptions?: InsertOneOptions;
@@ -14,7 +13,6 @@ export interface PublisherOptions {
 export class Publisher<TMessage extends Document> {
   protected collection: Collection<TMessage>;
   protected insertOneOptions: InsertOneOptions;
-  protected promises = new PromiseTracker();
   protected closed = false;
 
   constructor(
@@ -28,13 +26,22 @@ export class Publisher<TMessage extends Document> {
     };
   }
 
-  async publish(message: OptionalUnlessRequiredId<TMessage>) {
+  /**
+   * Publishes the given message, returning the inserted message ID.
+   * Ignores message duplicates, returning null in that case.
+   * Can be used inside transactions (same options as MongoDB `insertOne`).
+   */
+  async publish(
+    message: OptionalUnlessRequiredId<TMessage>,
+    options?: InsertOneOptions,
+  ) {
     if (this.closed) throw new Error('Publisher closed');
 
     try {
-      const result = await this.promises.add(
-        this.collection.insertOne(message, this.insertOneOptions),
-      );
+      const result = await this.collection.insertOne(message, {
+        ...this.insertOneOptions,
+        ...options,
+      });
 
       return result.insertedId;
     } catch (err) {

@@ -2,6 +2,7 @@
 
 ## NEXT
 
+- Allow passing session and other options to `publish`
 - Update deps
 
 ## 1.1.0
