@@ -38,8 +38,7 @@
     "test": "jest --runInBand --coverage",
     "build": "tsc --project tsconfig.build.json",
     "clean": "rm -rf dist",
-    "docs": "typedoc src/index.ts --excludeProtected --excludePrivate",
-    "maybe-publish": "bash scripts/maybe-publish.sh"
+    "docs": "typedoc src/index.ts --excludeProtected --excludePrivate"
   },
   "peerDependencies": {
     "mongodb": ">=4"

@@ -3,19 +3,19 @@ name: Pipeline
 on: push
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: ["18.x", "20.x"]
+        mongo-version: ["5", "6", "7"]
     steps:
       - uses: actions/checkout@v4
-      - run: docker-compose up -d
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - run: MONGO_VERSION=${{ matrix.mongo-version }} docker-compose up -d
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: "https://registry.npmjs.org"
+          registry-url: https://registry.npmjs.org
       - run: npm install
       - run: npm run lint
       - run: npm run format-check
@@ -26,8 +26,24 @@ jobs:
       - run: docker-compose down
         if: always()
       - run: npx codecov
-        if: ${{ matrix.node-version == '18.x' }}
-      - run: npm run maybe-publish
-        if: ${{ github.ref == 'refs/heads/main' && matrix.node-version == '18.x' }}
+        if: matrix.node-version == '18.x' && matrix.mongo-version == '5'
+
+  publish:
+    if: github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          registry-url: https://registry.npmjs.org
+      - run: npm info $(node -p "require('./package.json').name")@$(node -p "require('./package.json').version") || ALREADY_PUBLISHED=1
+      - run: npm install
+        if: $ALREADY_PUBLISHED != 1
+      - run: npm run build
+        if: $ALREADY_PUBLISHED != 1
+      - run: npm run publish
+        if: $ALREADY_PUBLISHED != 1
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
