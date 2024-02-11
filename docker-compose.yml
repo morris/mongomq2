@@ -2,15 +2,9 @@ version: "3"
 services:
   mongo:
     image: mongo:${MONGO_VERSION:-5}
-    # Override command to start as a single-node replica set;
-    # required for change streams and transactions.
-    command:
-      - /bin/bash
-      - -c
-      - |
-        mongod --port 27017 --bind_ip_all --replSet rs0 &
-        sleep 3
-        mongo mongodb://localhost:27017 --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] })'
-        wait $$!
+    # Start a single-node replica set (required for change streams and transactions)
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    command: mongod --replSet rs0
     ports:
       - "27017:27017"
