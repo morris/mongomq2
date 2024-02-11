@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   mongo:
     image: mongo:${MONGO_VERSION:-5}
@@ -13,4 +13,4 @@ services:
         mongo mongodb://localhost:27017 --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] })'
         wait $$!
     ports:
-      - '27017:27017'
+      - "27017:27017"
