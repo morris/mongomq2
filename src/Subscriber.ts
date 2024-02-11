@@ -5,15 +5,15 @@ import {
   Document,
   Filter,
   ObjectId,
-} from "mongodb";
-import { ErrorEvents } from "./ErrorEvents";
-import { PromiseTracker } from "./PromiseTracker";
+} from 'mongodb';
+import { ErrorEvents } from './ErrorEvents';
+import { PromiseTracker } from './PromiseTracker';
 import {
   Subscription,
   SubscriptionCallback,
   SubscriptionOptions,
-} from "./Subscription";
-import { TypedEventEmitter } from "./TypedEventEmitter";
+} from './Subscription';
+import { TypedEventEmitter } from './TypedEventEmitter';
 
 export interface SubscriberOptions<TMessage extends Document> {
   /** Global MongoDB filter to apply on change stream. */
@@ -61,12 +61,12 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
     callback: SubscriptionCallback<TSpecificEvent>,
     options: SubscriptionOptions<TSpecificEvent> = {},
   ) {
-    if (this.closed) throw new Error("Subscriber closed");
+    if (this.closed) throw new Error('Subscriber closed');
 
     this.init();
 
     const subscription = new Subscription(callback, options);
-    subscription.on("error", (err) => this.emit("error", err));
+    subscription.on('error', (err) => this.emit('error', err));
 
     this.subscriptions.add(subscription as Subscription<TMessage>);
 
@@ -98,13 +98,13 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
 
     this.changeStream = this.collection.watch<WatchResult<TMessage>>(
       [
-        { $match: { operationType: "insert" } },
+        { $match: { operationType: 'insert' } },
         {
           $replaceRoot: {
             newRoot: {
               $mergeObjects: [
-                "$fullDocument",
-                { _id: "$_id", _oid: "$fullDocument._id" },
+                '$fullDocument',
+                { _id: '$_id', _oid: '$fullDocument._id' },
               ],
             },
           },
@@ -114,7 +114,7 @@ export class Subscriber<TMessage extends Document> extends TypedEventEmitter<
       this.changeStreamOptions,
     );
 
-    this.changeStream.on("change", async (change: WatchResult<TMessage>) => {
+    this.changeStream.on('change', async (change: WatchResult<TMessage>) => {
       if (this.closed) return;
 
       const message = { ...change, _id: change._oid };

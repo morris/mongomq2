@@ -1,4 +1,4 @@
-import { Collection, Filter, MongoClient, WithId } from "mongodb";
+import { Collection, Filter, MongoClient, WithId } from 'mongodb';
 import {
   BatchPublisher,
   BatchPublisherOptions,
@@ -10,18 +10,18 @@ import {
   Subscriber,
   SubscriberOptions,
   WithOptionalObjectId,
-} from "../src";
+} from '../src';
 
 export type TestMessage = NumericTestMessage | TextTestMessage;
 
 export interface NumericTestMessage extends WithOptionalObjectId {
-  type: "numeric";
+  type: 'numeric';
   value: number;
   key?: string;
 }
 
 export interface TextTestMessage extends WithOptionalObjectId {
-  type: "text";
+  type: 'text';
   value: string;
   key?: string;
 }
@@ -40,13 +40,13 @@ export class TestUtil {
 
   constructor(env: Record<string, string | undefined>) {
     this.mongoClient = new MongoClient(
-      env.MONGO_URL ?? "mongodb://localhost:27017",
+      env.MONGO_URL ?? 'mongodb://localhost:27017',
       { maxPoolSize: 100 },
     );
 
     this.collection = this.mongoClient
       .db(env.DB_NAME ?? undefined)
-      .collection(env.COLLECTION_NAME ?? "messages");
+      .collection(env.COLLECTION_NAME ?? 'messages');
 
     beforeAll(async () => {
       await this.mongoClient.connect();
@@ -100,7 +100,7 @@ export class TestUtil {
   createBatchPublisher(options?: BatchPublisherOptions) {
     const batchPublisher = new BatchPublisher(this.collection, options);
 
-    batchPublisher.on("error", (err) => {
+    batchPublisher.on('error', (err) => {
       if (err instanceof TestFailure) return;
       this.emittedErrors.push(err);
     });
@@ -113,7 +113,7 @@ export class TestUtil {
   createSubscriber(options?: SubscriberOptions<TestMessage>) {
     const subscriber = new Subscriber(this.collection, options);
 
-    subscriber.on("error", (err) => {
+    subscriber.on('error', (err) => {
       if (err instanceof TestFailure) return;
       this.emittedErrors.push(err);
     });
@@ -133,12 +133,12 @@ export class TestUtil {
       options,
     );
 
-    consumer.on("error", (err) => {
+    consumer.on('error', (err) => {
       if (err instanceof TestFailure) return;
       this.emittedErrors.push(err);
     });
 
-    consumer.on("deadLetter", (err, message) => {
+    consumer.on('deadLetter', (err, message) => {
       if (err instanceof TestFailure) return;
       this.deadLetters.push(message as WithId<TestMessage>);
     });

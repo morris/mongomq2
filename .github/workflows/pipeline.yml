@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["18.x", "20.x"]
-        mongo-version: ["5", "6", "7"]
+        node-version: ['18.x', '20.x']
+        mongo-version: ['5', '6', '7']
     steps:
       - uses: actions/checkout@v4
       - run: MONGO_VERSION=${{ matrix.mongo-version }} docker-compose up -d
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: '18.x'
           registry-url: https://registry.npmjs.org
       - run: npm info $(node -p "require('./package.json').name")@$(node -p "require('./package.json').version") || ALREADY_PUBLISHED=1
       - run: npm install

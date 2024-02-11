@@ -1,20 +1,20 @@
-import { Collection, Filter, OptionalUnlessRequiredId, WithId } from "mongodb";
+import { Collection, Filter, OptionalUnlessRequiredId, WithId } from 'mongodb';
 import {
   BatchPublisher,
   BatchPublisherEvents,
   BatchPublisherOptions,
-} from "./BatchPublisher";
+} from './BatchPublisher';
 import {
   Consumer,
   ConsumerCallback,
   ConsumerEvents,
   ConsumerOptions,
-} from "./Consumer";
-import { Publisher, PublisherOptions } from "./Publisher";
-import { Subscriber, SubscriberEvents, SubscriberOptions } from "./Subscriber";
-import { SubscriptionCallback, SubscriptionOptions } from "./Subscription";
-import { TypedEventEmitter } from "./TypedEventEmitter";
-import { WithOptionalObjectId } from "./WithOptionalObjectId";
+} from './Consumer';
+import { Publisher, PublisherOptions } from './Publisher';
+import { Subscriber, SubscriberEvents, SubscriberOptions } from './Subscriber';
+import { SubscriptionCallback, SubscriptionOptions } from './Subscription';
+import { TypedEventEmitter } from './TypedEventEmitter';
+import { WithOptionalObjectId } from './WithOptionalObjectId';
 
 export interface MessageQueueOptions<TMessage extends WithOptionalObjectId>
   extends PublisherOptions,
@@ -49,12 +49,12 @@ export class MessageQueue<
     this.batchPublisher = new BatchPublisher(collection, options);
     this.subscriber = new Subscriber(collection, options);
 
-    this.batchPublisher.on("error", (err, message) =>
-      this.emit("error", err, message),
+    this.batchPublisher.on('error', (err, message) =>
+      this.emit('error', err, message),
     );
 
-    this.subscriber.on("error", (err, message) =>
-      this.emit("error", err, message),
+    this.subscriber.on('error', (err, message) =>
+      this.emit('error', err, message),
     );
   }
 
@@ -95,13 +95,13 @@ export class MessageQueue<
       },
     );
 
-    consumer.on("error", (err, message, group) =>
-      this.emit("error", err, message, group),
+    consumer.on('error', (err, message, group) =>
+      this.emit('error', err, message, group),
     );
-    consumer.on("deadLetter", (err, message, group) =>
-      this.emit("deadLetter", err, message as WithId<TMessage>, group),
+    consumer.on('deadLetter', (err, message, group) =>
+      this.emit('deadLetter', err, message as WithId<TMessage>, group),
     );
-    consumer.on("drained", (group) => this.emit("drained", group));
+    consumer.on('drained', (group) => this.emit('drained', group));
 
     this.consumers.push(consumer as unknown as Consumer<TMessage>);
 

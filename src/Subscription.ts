@@ -1,9 +1,9 @@
-import { Query } from "mingo";
-import { RawObject } from "mingo/types";
-import { Document, Filter } from "mongodb";
-import { ErrorEvents } from "./ErrorEvents";
-import { PromiseTracker } from "./PromiseTracker";
-import { TypedEventEmitter } from "./TypedEventEmitter";
+import { Query } from 'mingo';
+import { RawObject } from 'mingo/types';
+import { Document, Filter } from 'mongodb';
+import { ErrorEvents } from './ErrorEvents';
+import { PromiseTracker } from './PromiseTracker';
+import { TypedEventEmitter } from './TypedEventEmitter';
 
 export interface SubscriptionOptions<TMessage extends Document> {
   /** Local filter to apply on received messages (in-memory). */
@@ -55,7 +55,7 @@ export class Subscription<TMessage extends Document> extends TypedEventEmitter<
     try {
       await this.promises.run(async () => this.callback(message));
     } catch (err) {
-      this.emit("error", err as Error, message);
+      this.emit('error', err as Error, message);
     }
   }
 }

@@ -4,10 +4,10 @@ import {
   Document,
   MongoBulkWriteError,
   OptionalUnlessRequiredId,
-} from "mongodb";
-import { ErrorEvents } from "./ErrorEvents";
-import { Timeout } from "./Timeout";
-import { TypedEventEmitter } from "./TypedEventEmitter";
+} from 'mongodb';
+import { ErrorEvents } from './ErrorEvents';
+import { Timeout } from './Timeout';
+import { TypedEventEmitter } from './TypedEventEmitter';
 
 export interface BatchPublisherOptions {
   /**
@@ -66,7 +66,7 @@ export class BatchPublisher<
     this.bestEffort = options.bestEffort ?? true;
     this.bulkWriteOptions = {
       ordered: false,
-      writeConcern: { w: this.bestEffort ? "majority" : 0 },
+      writeConcern: { w: this.bestEffort ? 'majority' : 0 },
       ...options.bulkWriteOptions,
     };
   }
@@ -79,7 +79,7 @@ export class BatchPublisher<
     if (this.closed) {
       if (!this.bestEffort) return;
 
-      throw new Error("BatchPublisher closed");
+      throw new Error('BatchPublisher closed');
     }
 
     this.queue.push(message);
@@ -122,7 +122,7 @@ export class BatchPublisher<
         }
       }
     } catch (err) {
-      this.emit("error", err as Error);
+      this.emit('error', err as Error);
       this.flushTimeout.set(this.delayMs);
     }
   }

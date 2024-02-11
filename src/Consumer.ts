@@ -1,9 +1,9 @@
-import { Collection, Filter, ObjectId, UpdateFilter, WithId } from "mongodb";
-import { ErrorEvents } from "./ErrorEvents";
-import { PromiseTracker } from "./PromiseTracker";
-import { Timeout } from "./Timeout";
-import { TypedEventEmitter } from "./TypedEventEmitter";
-import { WithOptionalObjectId } from "./WithOptionalObjectId";
+import { Collection, Filter, ObjectId, UpdateFilter, WithId } from 'mongodb';
+import { ErrorEvents } from './ErrorEvents';
+import { PromiseTracker } from './PromiseTracker';
+import { Timeout } from './Timeout';
+import { TypedEventEmitter } from './TypedEventEmitter';
+import { WithOptionalObjectId } from './WithOptionalObjectId';
 
 export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
   /**
@@ -168,7 +168,7 @@ export class Consumer<
         );
       }, timeoutMs);
 
-      this.once("drained", () => {
+      this.once('drained', () => {
         clearTimeout(timeout);
         resolve();
       });
@@ -208,21 +208,21 @@ export class Consumer<
             // fast poll after successfully consumed message
             this.nextTimeout.set(0, this.fastPollMs);
           } catch (err) {
-            this.emit("error", err as Error, message as TMessage, this.group);
+            this.emit('error', err as Error, message as TMessage, this.group);
 
             const metadata = message as ConsumerMetadata;
             const retries = metadata._c?.[this.group]?.r ?? 0;
 
             if (retries >= this.maxRetries) {
-              this.emit("deadLetter", err as Error, message, this.group);
+              this.emit('deadLetter', err as Error, message, this.group);
             }
           }
         } else {
-          this.emit("drained", this.group);
+          this.emit('drained', this.group);
         }
       });
     } catch (err) {
-      this.emit("error", err as Error);
+      this.emit('error', err as Error);
     }
 
     this.pending -= 1;
@@ -309,7 +309,7 @@ export class Consumer<
         {
           projection: { _id: 1 },
           sort: { _id: 1 },
-          readPreference: "secondaryPreferred",
+          readPreference: 'secondaryPreferred',
         },
       );
 
@@ -321,7 +321,7 @@ export class Consumer<
         );
       }
     } catch (err) {
-      this.emit("error", err as Error);
+      this.emit('error', err as Error);
     }
 
     this.seekTimeout.set(

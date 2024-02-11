@@ -4,8 +4,8 @@ import {
   InsertOneOptions,
   MongoServerError,
   OptionalUnlessRequiredId,
-} from "mongodb";
-import { PromiseTracker } from "./PromiseTracker";
+} from 'mongodb';
+import { PromiseTracker } from './PromiseTracker';
 
 export interface PublisherOptions {
   insertOneOptions?: InsertOneOptions;
@@ -23,13 +23,13 @@ export class Publisher<TMessage extends Document> {
   ) {
     this.collection = collection;
     this.insertOneOptions = {
-      writeConcern: { w: "majority" },
+      writeConcern: { w: 'majority' },
       ...options.insertOneOptions,
     };
   }
 
   async publish(message: OptionalUnlessRequiredId<TMessage>) {
-    if (this.closed) throw new Error("Publisher closed");
+    if (this.closed) throw new Error('Publisher closed');
 
     try {
       const result = await this.promises.add(

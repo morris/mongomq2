@@ -1,5 +1,5 @@
-import { TypedEventEmitter as ITypedEventEmitter } from "mongodb";
-import { EventEmitter } from "stream";
+import { TypedEventEmitter as ITypedEventEmitter } from 'mongodb';
+import { EventEmitter } from 'stream';
 
 // this rewiring is necessary because mongodb only declares the
 // TypedEventEmitter class but exports no implementation

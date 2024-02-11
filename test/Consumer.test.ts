@@ -1,17 +1,17 @@
-import { ObjectId } from "mongodb";
-import { Publisher } from "../src";
+import { ObjectId } from 'mongodb';
+import { Publisher } from '../src';
 import {
   NumericTestMessage,
   TestFailure,
   TestMessage,
   TestUtil,
   TextTestMessage,
-} from "./testUtil";
+} from './testUtil';
 
-describe("A Consumer", () => {
+describe('A Consumer', () => {
   const util = new TestUtil(process.env);
 
-  it("should be able to publish and consume messages (2 consumers, 4 messages)", async () => {
+  it('should be able to publish and consume messages (2 consumers, 4 messages)', async () => {
     const publisher = new Publisher(util.collection);
 
     const numericMessages1: NumericTestMessage[] = [];
@@ -24,8 +24,8 @@ describe("A Consumer", () => {
         numericMessages1.push(message);
       },
       {
-        filter: { type: "numeric" },
-        group: "numeric",
+        filter: { type: 'numeric' },
+        group: 'numeric',
       },
     );
 
@@ -34,8 +34,8 @@ describe("A Consumer", () => {
         textMessages1.push(message);
       },
       {
-        filter: { type: "text" },
-        group: "text",
+        filter: { type: 'text' },
+        group: 'text',
       },
     );
 
@@ -44,8 +44,8 @@ describe("A Consumer", () => {
         numericMessages2.push(message);
       },
       {
-        filter: { type: "numeric" },
-        group: "numeric",
+        filter: { type: 'numeric' },
+        group: 'numeric',
       },
     );
 
@@ -54,26 +54,26 @@ describe("A Consumer", () => {
         textMessages2.push(message);
       },
       {
-        filter: { type: "text" },
-        group: "text",
+        filter: { type: 'text' },
+        group: 'text',
       },
     );
 
-    await publisher.publish({ type: "numeric", value: 1 });
-    await publisher.publish({ type: "numeric", value: 2 });
-    await publisher.publish({ type: "text", value: "hello" });
-    await publisher.publish({ type: "text", value: "world" });
+    await publisher.publish({ type: 'numeric', value: 1 });
+    await publisher.publish({ type: 'numeric', value: 2 });
+    await publisher.publish({ type: 'text', value: 'hello' });
+    await publisher.publish({ type: 'text', value: 'world' });
 
-    await util.waitUntilAcknowledged({ type: "numeric" }, "numeric");
-    await util.waitUntilAcknowledged({ type: "text" }, "text");
+    await util.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
+    await util.waitUntilAcknowledged({ type: 'text' }, 'text');
 
     expect(
       [...numericMessages1, ...numericMessages2].sort(
         (a, b) => a.value - b.value,
       ),
     ).toEqual([
-      { _id: expect.any(ObjectId), type: "numeric", value: 1 },
-      { _id: expect.any(ObjectId), type: "numeric", value: 2 },
+      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
+      { _id: expect.any(ObjectId), type: 'numeric', value: 2 },
     ]);
 
     expect(
@@ -81,12 +81,12 @@ describe("A Consumer", () => {
         a.value < b.value ? -1 : a.value > b.value ? 1 : 0,
       ),
     ).toEqual([
-      { _id: expect.any(ObjectId), type: "text", value: "hello" },
-      { _id: expect.any(ObjectId), type: "text", value: "world" },
+      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
+      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
     ]);
   });
 
-  describe("(randomized)", () => {
+  describe('(randomized)', () => {
     interface TestRandomizedOptions {
       numberOfConsumers: number;
       numberOfNumericMessages: number;
@@ -116,18 +116,18 @@ describe("A Consumer", () => {
           util.createConsumer<NumericTestMessage>(
             (message) => {
               if (Math.random() < failureRate / 2) {
-                throw new TestFailure("Failure before workload");
+                throw new TestFailure('Failure before workload');
               }
 
               numericMessages.push(message);
 
               if (Math.random() < failureRate / 2) {
-                throw new TestFailure("Failure after workload");
+                throw new TestFailure('Failure after workload');
               }
             },
             {
-              group: "numeric",
-              filter: { type: "numeric" },
+              group: 'numeric',
+              filter: { type: 'numeric' },
               concurrency,
               visibilityTimeoutSeconds: 1,
               maxRetries: 100,
@@ -137,18 +137,18 @@ describe("A Consumer", () => {
           util.createConsumer<TextTestMessage>(
             (message) => {
               if (Math.random() < failureRate / 2) {
-                throw new TestFailure("Failure before workload");
+                throw new TestFailure('Failure before workload');
               }
 
               textMessages.push(message);
 
               if (Math.random() < failureRate / 2) {
-                throw new TestFailure("Failure after workload");
+                throw new TestFailure('Failure after workload');
               }
             },
             {
-              group: "text",
-              filter: { type: "text" },
+              group: 'text',
+              filter: { type: 'text' },
               concurrency,
               visibilityTimeoutSeconds: 1,
               maxRetries: 100,
@@ -158,23 +158,23 @@ describe("A Consumer", () => {
 
         const p1 = (async () => {
           for (let i = 0; i < numberOfNumericMessages; ++i) {
-            await publisher.publish({ type: "numeric", value: i });
+            await publisher.publish({ type: 'numeric', value: i });
           }
         })();
 
         const p2 = (async () => {
           for (let i = 0; i < numberOfTextMessages; ++i) {
             await publisher.publish({
-              type: "text",
-              value: "t" + i,
+              type: 'text',
+              value: 't' + i,
             });
           }
         })();
 
         await Promise.all([p1, p2]);
 
-        await util.waitUntilAcknowledged({ type: "numeric" }, "numeric");
-        await util.waitUntilAcknowledged({ type: "text" }, "text");
+        await util.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
+        await util.waitUntilAcknowledged({ type: 'text' }, 'text');
 
         if (failureRate > 0) {
           expect(
@@ -226,25 +226,25 @@ describe("A Consumer", () => {
     });
   });
 
-  it("should consume past messages correctly", async () => {
+  it('should consume past messages correctly', async () => {
     const now = Math.floor(Date.now() / 1000);
-    const group = "testGroup";
+    const group = 'testGroup';
 
     const messages = [
       {
         _id: ObjectId.createFromTime(now - 120),
-        type: "text",
-        value: "too old",
+        type: 'text',
+        value: 'too old',
       },
       {
         _id: ObjectId.createFromTime(now - 35),
-        type: "text",
-        value: "should be consumed 1",
+        type: 'text',
+        value: 'should be consumed 1',
       },
       {
         _id: ObjectId.createFromTime(now - 30),
-        type: "text",
-        value: "acknowledged",
+        type: 'text',
+        value: 'acknowledged',
         _c: {
           [group]: {
             v: (now - 25) * 1000,
@@ -254,8 +254,8 @@ describe("A Consumer", () => {
       },
       {
         _id: ObjectId.createFromTime(now - 25),
-        type: "text",
-        value: "should be consumed 2",
+        type: 'text',
+        value: 'should be consumed 2',
         _c: {
           [group]: {
             v: (now - 20) * 1000,
@@ -265,8 +265,8 @@ describe("A Consumer", () => {
       },
       {
         _id: ObjectId.createFromTime(now - 15),
-        type: "text",
-        value: "too many retries",
+        type: 'text',
+        value: 'too many retries',
         _c: {
           [group]: {
             v: (now - 10) * 1000,
@@ -276,13 +276,13 @@ describe("A Consumer", () => {
       },
       {
         _id: ObjectId.createFromTime(now - 20),
-        type: "text",
-        value: "should be consumed 3",
+        type: 'text',
+        value: 'should be consumed 3',
       },
       {
         _id: ObjectId.createFromTime(now - 5),
-        type: "text",
-        value: "too new",
+        type: 'text',
+        value: 'too new',
       },
     ] as TextTestMessage[];
 
@@ -319,22 +319,22 @@ describe("A Consumer", () => {
     await util.waitUntilAcknowledged({ _id: messages[5]._id }, group);
 
     expect(consumed).toMatchObject([
-      { value: "should be consumed 1" },
-      { value: "should be consumed 2" },
-      { value: "should be consumed 3" },
+      { value: 'should be consumed 1' },
+      { value: 'should be consumed 2' },
+      { value: 'should be consumed 3' },
     ]);
   });
 
-  it("should emit deadLetter events when retries are exhausted", async () => {
-    const group = "testGroup";
+  it('should emit deadLetter events when retries are exhausted', async () => {
+    const group = 'testGroup';
     const consumed: TestMessage[] = [];
     let errors = 0;
     const deadLetters: TestMessage[] = [];
 
     const consumer = util.createConsumer(
       (message) => {
-        if (message.value === "fail") {
-          throw new TestFailure("always fails");
+        if (message.value === 'fail') {
+          throw new TestFailure('always fails');
         }
 
         consumed.push(message);
@@ -348,44 +348,44 @@ describe("A Consumer", () => {
       },
     );
 
-    consumer.on("error", () => ++errors);
+    consumer.on('error', () => ++errors);
 
-    consumer.on("deadLetter", (err, message) => {
+    consumer.on('deadLetter', (err, message) => {
       deadLetters.push(message);
     });
 
     const publisher = util.createPublisher();
 
     await publisher.publish({
-      type: "text",
-      value: "ok1",
+      type: 'text',
+      value: 'ok1',
     });
 
     await publisher.publish({
-      type: "text",
-      value: "ok2",
+      type: 'text',
+      value: 'ok2',
     });
 
     await publisher.publish({
-      type: "text",
-      value: "fail",
+      type: 'text',
+      value: 'fail',
     });
 
     await publisher.publish({
-      type: "text",
-      value: "ok3",
+      type: 'text',
+      value: 'ok3',
     });
 
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
     expect(consumed).toMatchObject([
-      { value: "ok1" },
-      { value: "ok2" },
-      { value: "ok3" },
+      { value: 'ok1' },
+      { value: 'ok2' },
+      { value: 'ok3' },
     ]);
 
     expect(errors).toBe(4); // 1 initial try + 3 retries
     expect(deadLetters.length).toBe(1);
-    expect(deadLetters[0]).toMatchObject({ value: "fail" });
+    expect(deadLetters[0]).toMatchObject({ value: 'fail' });
   }, 300000);
 });

@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   mongo:
     image: mongo:${MONGO_VERSION:-5}
@@ -7,4 +7,4 @@ services:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     command: mongod --replSet rs0
     ports:
-      - "27017:27017"
+      - '27017:27017'

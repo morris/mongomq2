@@ -1,7 +1,7 @@
-import { Benchmark, BenchmarkOptions } from "./Benchmark";
+import { Benchmark, BenchmarkOptions } from './Benchmark';
 
-describe("Benchmarks", () => {
-  const url = "mongodb://localhost:27017";
+describe('Benchmarks', () => {
+  const url = 'mongodb://localhost:27017';
   const benchmarks: BenchmarkOptions[] = process.env.BENCHMARK
     ? [
         {
@@ -96,7 +96,7 @@ describe("Benchmarks", () => {
         },
       ];
   it.each(benchmarks)(
-    "...",
+    '...',
     async (options) => {
       const benchmark = new Benchmark(options);
 

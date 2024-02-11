@@ -1,5 +1,5 @@
-import { MongoClient, MongoClientOptions, ObjectId } from "mongodb";
-import { MessageQueue, MessageQueueOptions } from "../../src";
+import { MongoClient, MongoClientOptions, ObjectId } from 'mongodb';
+import { MessageQueue, MessageQueueOptions } from '../../src';
 
 export interface BenchmarkMessage {
   _id?: ObjectId;
@@ -22,7 +22,7 @@ export class Benchmark {
   public consumeTimes: number[] = [];
 
   constructor(public options: BenchmarkOptions) {
-    this.preparedMessage = { data: "0".repeat(this.options.messageSize) };
+    this.preparedMessage = { data: '0'.repeat(this.options.messageSize) };
   }
 
   async setup() {
@@ -108,7 +108,7 @@ export class Benchmark {
     return new MongoClient(this.options.url, this.options.mongoClientOptions);
   }
 
-  createMessageQueue(mongoClient: MongoClient, collectionName = "messages") {
+  createMessageQueue(mongoClient: MongoClient, collectionName = 'messages') {
     return new MessageQueue(
       mongoClient.db().collection<BenchmarkMessage>(collectionName),
       this.options,
