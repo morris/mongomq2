@@ -28,7 +28,7 @@ jobs:
       - run: docker-compose down
         if: always()
       - run: npx codecov
-        if: matrix.node-version == '18.x' && matrix.mongodb-version == '5'
+        if: matrix.node-version == '18.x' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
 
   publish:
     if: github.ref == 'refs/heads/main'
@@ -40,12 +40,8 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: https://registry.npmjs.org
-      - run: npm info $(node -p "require('./package.json').name")@$(node -p "require('./package.json').version") && ALREADY_PUBLISHED=1
       - run: npm install
-        if: env.ALREADY_PUBLISHED != 1
       - run: npm run build
-        if: env.ALREADY_PUBLISHED != 1
-      - run: npm publish
-        if: env.ALREADY_PUBLISHED != 1
+      - run: npm publish || echo "Already published"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
