@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.2.0
 
 - Allow passing session and other options to `Publisher.publish`
 - Update deps
