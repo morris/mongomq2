@@ -1,5 +1,9 @@
 # Changelog
 
+## NEXT
+
+- Update deps
+
 ## 1.1.0
 
 - Add `group` to consumer event callback signature
