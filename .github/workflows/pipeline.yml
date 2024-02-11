@@ -40,10 +40,10 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm info $(node -p "require('./package.json').name")@$(node -p "require('./package.json').version") || ALREADY_PUBLISHED=1
       - run: npm install
-        if: $ALREADY_PUBLISHED != 1
+        if: env.ALREADY_PUBLISHED != 1
       - run: npm run build
-        if: $ALREADY_PUBLISHED != 1
+        if: env.ALREADY_PUBLISHED != 1
       - run: npm run publish
-        if: $ALREADY_PUBLISHED != 1
+        if: env.ALREADY_PUBLISHED != 1
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
