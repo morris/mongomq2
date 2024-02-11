@@ -8,10 +8,11 @@ jobs:
     strategy:
       matrix:
         node-version: ['18.x', '20.x']
-        mongo-version: ['5', '6', '7']
+        mongodb-version: ['5', '6', '7']
+        mongodb-package-version: ['4', '5', '6']
     steps:
       - uses: actions/checkout@v4
-      - run: MONGO_VERSION=${{ matrix.mongo-version }} docker-compose up -d
+      - run: MONGO_VERSION=${{ matrix.mongodb-version }} docker-compose up -d
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -19,6 +20,7 @@ jobs:
       - run: npm install
       - run: npm run lint
       - run: npm run format-check
+      - run: npm install mongodb@${{ matrix.mongodb-package-version }} -D
       - run: npm run build
       - run: npm test
         env:
@@ -26,7 +28,7 @@ jobs:
       - run: docker-compose down
         if: always()
       - run: npx codecov
-        if: matrix.node-version == '18.x' && matrix.mongo-version == '5'
+        if: matrix.node-version == '18.x' && matrix.mongodb-version == '5'
 
   publish:
     if: github.ref == 'refs/heads/main'
