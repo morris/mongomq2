@@ -29,7 +29,6 @@ jobs:
         if: always()
       - run: npx codecov
         if: matrix.node-version == '18.x' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
-
   publish:
     if: github.ref == 'refs/heads/main'
     needs: check

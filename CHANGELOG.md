@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+- Update deps
+
 ## 1.2.0
 
 - Allow passing session and other options to `Publisher.publish`
