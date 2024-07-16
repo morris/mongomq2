@@ -1,13 +1,18 @@
 # Changelog
 
+## NEXT
+
+- Migrate tests to `node:test`
+- Update dependencies
+
 ## 1.2.1
 
-- Update deps
+- Update dependencies
 
 ## 1.2.0
 
 - Allow passing session and other options to `Publisher.publish`
-- Update deps
+- Update dependencies
 
 ## 1.1.0
 
@@ -24,20 +29,20 @@
 - Add `fastPollMs` option to consumers
 - Remove casting to `Error`
 - Add preliminary benchmarks
-- Update deps
+- Update dependencies
 
 ## 0.4.0
 
 - Fix typing issue; all generic `TMessage` args now inherit from MongoDB's `Document` interface
 - Simplify build
-- Update deps
+- Update dependencies
 
 ## 0.3.0
 
 - Add type-safety to all event emitters
 - Add `Consumer.drain` method (waits until consumer could not receive a message)
 - Add `MessageQueue` class that combines existing capabilities for convenience
-- Update deps
+- Update dependencies
 
 ## 0.2.1
 
