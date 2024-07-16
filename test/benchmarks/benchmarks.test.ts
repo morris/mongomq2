@@ -1,3 +1,4 @@
+import { describe, it } from 'node:test';
 import { Benchmark, BenchmarkOptions } from './Benchmark';
 
 describe('Benchmarks', () => {
@@ -96,9 +97,8 @@ describe('Benchmarks', () => {
         },
       ];
 
-  it.each(benchmarks)(
-    '...',
-    async (options) => {
+  for (const options of benchmarks) {
+    it('...', async () => {
       const benchmark = new Benchmark(options);
 
       await benchmark.setup();
@@ -106,7 +106,6 @@ describe('Benchmarks', () => {
 
       // eslint-disable-next-line no-console
       console.log(options, benchmark.report());
-    },
-    1000 * 60 * 60,
-  );
+    });
+  }
 });

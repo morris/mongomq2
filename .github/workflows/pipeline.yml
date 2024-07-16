@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['18.x', '20.x']
+        node-version: ['18.x', '20.x', '22.x']
         mongodb-version: ['5', '6', '7']
         mongodb-package-version: ['4', '5', '6']
     steps:

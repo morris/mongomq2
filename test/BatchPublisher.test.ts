@@ -1,10 +1,11 @@
-import { ObjectId } from 'mongodb';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { TestFailure, TestUtil } from './TestUtil';
 
-describe('A BatchPublisher', () => {
-  const testUtil = new TestUtil(process.env);
+describe('BatchPublisher', () => {
+  const testUtil = new TestUtil({ ...process.env, DB_NAME: 'BatchPublisher' });
 
-  it('should be able to publish messages', async () => {
+  it('publishes messages', async () => {
     const publisher = testUtil.createBatchPublisher({ batchDelayMs: 10 });
 
     publisher.publish({ type: 'numeric', value: 1 });
@@ -14,13 +15,13 @@ describe('A BatchPublisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1 },
+      { type: 'text', value: 'hello' },
     ]);
   });
 
-  it('should publish messages with unique keys once', async () => {
+  it('publishes messages with unique keys once', async () => {
     await testUtil.collection.createIndex({ key: 1 }, { unique: true });
 
     const publisher = testUtil.createBatchPublisher({ batchDelayMs: 10 });
@@ -34,14 +35,14 @@ describe('A BatchPublisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1, key: '1' },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2, key: '2' },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 3, key: '3' },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1, key: '1' },
+      { type: 'numeric', value: 2, key: '2' },
+      { type: 'numeric', value: 3, key: '3' },
     ]);
   });
 
-  it('should publish queued messages on close if bestEffort is enabled', async () => {
+  it('publishes queued messages on close if bestEffort is enabled', async () => {
     const publisher = testUtil.createBatchPublisher({
       batchDelayMs: 10000,
       bestEffort: true,
@@ -52,19 +53,20 @@ describe('A BatchPublisher', () => {
 
     await publisher.close();
 
-    expect(() =>
-      publisher.publish({ type: 'text', value: 'hello2' }),
-    ).toThrowError('BatchPublisher closed');
+    assert.throws(
+      () => publisher.publish({ type: 'text', value: 'hello2' }),
+      new Error('BatchPublisher closed'),
+    );
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1 },
+      { type: 'text', value: 'hello' },
     ]);
   });
 
-  it('should drop queued messages on close if bestEffort is disabled', async () => {
+  it('drops queued messages on close if bestEffort is disabled', async () => {
     const publisher = testUtil.createBatchPublisher({
       batchDelayMs: 10000,
       bestEffort: false,
@@ -80,10 +82,10 @@ describe('A BatchPublisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([]);
+    assert.deepStrictEqual(testUtil.omitId(messages), []);
   });
 
-  it('should publish messages in batches respecting maxBatchSize', async () => {
+  it('publishes messages in batches respecting maxBatchSize', async () => {
     const publisher = testUtil.createBatchPublisher({
       batchDelayMs: 10,
       maxBatchSize: 2,
@@ -97,14 +99,14 @@ describe('A BatchPublisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
-      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1 },
+      { type: 'text', value: 'hello' },
+      { type: 'text', value: 'world' },
     ]);
   });
 
-  it('should publish messages in batches respecting maxBatchSize (queue size multiple of batch size)', async () => {
+  it('publishes messages in batches respecting maxBatchSize (queue size multiple of batch size)', async () => {
     const publisher = testUtil.createBatchPublisher({
       batchDelayMs: 10,
       maxBatchSize: 2,
@@ -119,23 +121,25 @@ describe('A BatchPublisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
-      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2 },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1 },
+      { type: 'text', value: 'hello' },
+      { type: 'text', value: 'world' },
+      { type: 'numeric', value: 2 },
     ]);
   });
 
-  it('should retry with best effort in case insertion failed', async () => {
+  it('retries with best effort in case insertion failed', async (t) => {
     const publisher = testUtil.createBatchPublisher({
       batchDelayMs: 10,
       maxBatchSize: 2,
     });
 
-    jest.spyOn(testUtil.collection, 'insertMany').mockImplementationOnce(() => {
-      throw new TestFailure('insertMany failed');
-    });
+    t.mock
+      .method(testUtil.collection, 'insertMany')
+      .mock.mockImplementationOnce(() => {
+        throw new TestFailure('insertMany failed');
+      });
 
     publisher.publish({ type: 'numeric', value: 1 });
     publisher.publish({ type: 'text', value: 'hello' });
@@ -146,11 +150,11 @@ describe('A BatchPublisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
-      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2 },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1 },
+      { type: 'text', value: 'hello' },
+      { type: 'text', value: 'world' },
+      { type: 'numeric', value: 2 },
     ]);
   });
 });

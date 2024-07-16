@@ -1,18 +1,20 @@
 import { ObjectId } from 'mongodb';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { MessageQueue } from '../src';
 import { TestUtil } from './TestUtil';
 
-describe('The MessageQueue', () => {
-  const testUtil = new TestUtil(process.env);
+describe('MessageQueue', () => {
+  const testUtil = new TestUtil({ ...process.env, DB_NAME: 'MessageQueue' });
 
-  it('should correctly run the example in the README', async () => {
+  it('correctly runs the example in the README', async () => {
     const logs: string[] = [];
 
     function log(message: string) {
       logs.push(message);
     }
 
-    const mongoClient = testUtil.mongoClient;
+    const db = testUtil.db;
 
     type MyMessage = InputMessage | OutputMessage;
 
@@ -30,7 +32,7 @@ describe('The MessageQueue', () => {
 
     // create MessageQueue
     const queue = new MessageQueue<MyMessage>(
-      mongoClient.db().collection<MyMessage>('messages'),
+      db.collection<MyMessage>('messages'),
     );
 
     // Consume "input" messages (including past ones)
@@ -63,7 +65,7 @@ describe('The MessageQueue', () => {
     await queue.drain();
     await queue.close();
 
-    expect(logs.sort()).toEqual([
+    assert.deepStrictEqual(logs.sort(), [
       'Processing done: hello!',
       'Processing done: world!',
       'Processing hello...',
@@ -71,7 +73,7 @@ describe('The MessageQueue', () => {
     ]);
   });
 
-  it('should filter correctly using global and local filters', async () => {
+  it('filters correctly using global and local filters', async () => {
     const logs: string[] = [];
 
     interface MyMessage {
@@ -85,7 +87,7 @@ describe('The MessageQueue', () => {
     }
 
     const queue = new MessageQueue<MyMessage>(
-      testUtil.mongoClient.db().collection<MyMessage>('messages'),
+      testUtil.db.collection<MyMessage>('messages'),
       { filter: { type: 'a' } },
     );
 
@@ -102,6 +104,6 @@ describe('The MessageQueue', () => {
     await queue.drain();
     await queue.close();
 
-    expect(logs.sort()).toEqual(['ac', 'ac', 'ad', 'ad']);
+    assert.deepStrictEqual(logs.sort(), ['ac', 'ac', 'ad', 'ad']);
   });
 });

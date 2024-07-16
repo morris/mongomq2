@@ -1,10 +1,11 @@
-import { ObjectId } from 'mongodb';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { TestFailure, TestMessage, TestUtil } from './TestUtil';
 
-describe('A Subscriber', () => {
-  const testUtil = new TestUtil(process.env);
+describe('Subscriber', () => {
+  const testUtil = new TestUtil({ ...process.env, DB_NAME: 'Subscriber' });
 
-  it('should be able to subscribe to messages', async () => {
+  it('subscribes to messages', async () => {
     const publisher = testUtil.createPublisher();
     const subscriber = testUtil.createSubscriber();
 
@@ -38,18 +39,18 @@ describe('A Subscriber', () => {
 
     await testUtil.wait(100);
 
-    expect(numericMessages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2 },
+    assert.deepStrictEqual(testUtil.omitId(numericMessages), [
+      { type: 'numeric', value: 1 },
+      { type: 'numeric', value: 2 },
     ]);
 
-    expect(textMessages).toEqual([
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
-      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
+    assert.deepStrictEqual(testUtil.omitId(textMessages), [
+      { type: 'text', value: 'hello' },
+      { type: 'text', value: 'world' },
     ]);
   });
 
-  it('should receive the same messages as an equivalent subscriber', async () => {
+  it('receives the same messages as an equivalent subscriber', async () => {
     const publisher = testUtil.createPublisher();
 
     const client1 = testUtil.createSubscriber();
@@ -105,21 +106,21 @@ describe('A Subscriber', () => {
 
     await testUtil.wait(100);
 
-    expect(numericMessages1).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2 },
+    assert.deepStrictEqual(testUtil.omitId(numericMessages1), [
+      { type: 'numeric', value: 1 },
+      { type: 'numeric', value: 2 },
     ]);
 
-    expect(textMessages1).toEqual([
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
-      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
+    assert.deepStrictEqual(testUtil.omitId(textMessages1), [
+      { type: 'text', value: 'hello' },
+      { type: 'text', value: 'world' },
     ]);
 
-    expect(numericMessages1).toEqual(numericMessages2);
-    expect(textMessages1).toEqual(textMessages2);
+    assert.deepStrictEqual(numericMessages1, numericMessages2);
+    assert.deepStrictEqual(textMessages1, textMessages2);
   });
 
-  it('should emit error messages for failed callbacks', async () => {
+  it('emits error messages for failed callbacks', async () => {
     const publisher = testUtil.createPublisher();
     const subscriber = testUtil.createSubscriber();
 
@@ -144,7 +145,7 @@ describe('A Subscriber', () => {
 
     await testUtil.wait(100);
 
-    expect(subscriberErrors.length).toEqual(4);
-    expect(subscriberErrors).toEqual(subscriptionErrors);
+    assert.deepStrictEqual(subscriberErrors.length, 4);
+    assert.deepStrictEqual(subscriberErrors, subscriptionErrors);
   });
 });

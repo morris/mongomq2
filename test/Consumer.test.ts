@@ -1,4 +1,6 @@
 import { ObjectId } from 'mongodb';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { Publisher } from '../src';
 import {
   NumericTestMessage,
@@ -8,10 +10,10 @@ import {
   TextTestMessage,
 } from './TestUtil';
 
-describe('A Consumer', () => {
-  const testUtil = new TestUtil(process.env);
+describe('Consumer', () => {
+  const testUtil = new TestUtil({ ...process.env, DB_NAME: 'Consumer' });
 
-  it('should be able to publish and consume messages (2 consumers, 4 messages)', async () => {
+  it('publishes and consumes messages (2 consumers, 4 messages)', async () => {
     const publisher = new Publisher(testUtil.collection);
 
     const numericMessages1: NumericTestMessage[] = [];
@@ -67,23 +69,26 @@ describe('A Consumer', () => {
     await testUtil.waitUntilAcknowledged({ type: 'numeric' }, 'numeric');
     await testUtil.waitUntilAcknowledged({ type: 'text' }, 'text');
 
-    expect(
-      [...numericMessages1, ...numericMessages2].sort(
-        (a, b) => a.value - b.value,
-      ),
-    ).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2 },
-    ]);
+    assert.deepStrictEqual(
+      testUtil
+        .omitId([...numericMessages1, ...numericMessages2])
+        .sort((a, b) => a.value - b.value),
 
-    expect(
-      [...textMessages1, ...textMessages2].sort((a, b) =>
-        a.value < b.value ? -1 : a.value > b.value ? 1 : 0,
-      ),
-    ).toEqual([
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
-      { _id: expect.any(ObjectId), type: 'text', value: 'world' },
-    ]);
+      [
+        { type: 'numeric', value: 1 },
+        { type: 'numeric', value: 2 },
+      ],
+    );
+
+    assert.deepStrictEqual(
+      testUtil
+        .omitId([...textMessages1, ...textMessages2])
+        .sort((a, b) => (a.value < b.value ? -1 : a.value > b.value ? 1 : 0)),
+      [
+        { type: 'text', value: 'hello' },
+        { type: 'text', value: 'world' },
+      ],
+    );
   });
 
   describe('(randomized)', () => {
@@ -106,7 +111,7 @@ describe('A Consumer', () => {
 
       const optionsForLabel = JSON.stringify(options, null, 2);
 
-      it(`should be able to publish and consume messages; ${optionsForLabel}`, async () => {
+      it(`publishes and consumes messages; ${optionsForLabel}`, async () => {
         const publisher = new Publisher(testUtil.collection);
 
         const numericMessages: NumericTestMessage[] = [];
@@ -177,22 +182,29 @@ describe('A Consumer', () => {
         await testUtil.waitUntilAcknowledged({ type: 'text' }, 'text');
 
         if (failureRate > 0) {
-          expect(
+          assert.deepStrictEqual(
             numericMessages.length >= numberOfNumericMessages,
-          ).toBeTruthy();
+            true,
+          );
 
-          expect(textMessages.length >= numberOfTextMessages).toBeTruthy();
+          assert.deepStrictEqual(
+            textMessages.length >= numberOfTextMessages,
+            true,
+          );
         } else {
-          expect(numericMessages.length).toEqual(numberOfNumericMessages);
-          expect(textMessages.length).toEqual(numberOfTextMessages);
+          assert.deepStrictEqual(
+            numericMessages.length,
+            numberOfNumericMessages,
+          );
+          assert.deepStrictEqual(textMessages.length, numberOfTextMessages);
         }
 
         const numericValues = new Set(numericMessages.map((it) => it.value));
         const textValues = new Set(textMessages.map((it) => it.value));
 
-        expect(numericValues.size).toEqual(numberOfNumericMessages);
-        expect(textValues.size).toEqual(numberOfTextMessages);
-      }, 15000);
+        assert.deepStrictEqual(numericValues.size, numberOfNumericMessages);
+        assert.deepStrictEqual(textValues.size, numberOfTextMessages);
+      });
     }
 
     testRandomized({
@@ -226,7 +238,7 @@ describe('A Consumer', () => {
     });
   });
 
-  it('should consume past messages correctly', async () => {
+  it('consumes past messages correctly', async () => {
     const now = Math.floor(Date.now() / 1000);
     const group = 'testGroup';
 
@@ -318,18 +330,15 @@ describe('A Consumer', () => {
 
     await testUtil.waitUntilAcknowledged({ _id: messages[5]._id }, group);
 
-    expect(
-      consumed.sort((a, b) =>
-        a.value < b.value ? -1 : a.value > b.value ? 1 : 0,
-      ),
-    ).toMatchObject([
-      { value: 'should be consumed 1' },
-      { value: 'should be consumed 2' },
-      { value: 'should be consumed 3' },
-    ]);
+    assert.deepStrictEqual(
+      consumed
+        .sort((a, b) => (a.value < b.value ? -1 : a.value > b.value ? 1 : 0))
+        .map((message) => message.value),
+      ['should be consumed 1', 'should be consumed 2', 'should be consumed 3'],
+    );
   });
 
-  it('should emit deadLetter events when retries are exhausted', async () => {
+  it('emits deadLetter events when retries are exhausted', async () => {
     const group = 'testGroup';
     const consumed: TestMessage[] = [];
     let errors = 0;
@@ -382,16 +391,15 @@ describe('A Consumer', () => {
 
     await testUtil.waitUntil(() => consumed.length >= 3);
 
-    expect(consumed).toMatchObject([
-      { value: 'ok1' },
-      { value: 'ok2' },
-      { value: 'ok3' },
-    ]);
+    assert.deepStrictEqual(
+      consumed.map((message) => message.value),
+      ['ok1', 'ok2', 'ok3'],
+    );
 
     await testUtil.waitUntil(() => deadLetters.length >= 1);
 
-    expect(errors).toBe(4); // 1 initial try + 3 retries
-    expect(deadLetters.length).toBe(1);
-    expect(deadLetters[0]).toMatchObject({ value: 'fail' });
+    assert.deepStrictEqual(errors, 4); // 1 initial try + 3 retries
+    assert.deepStrictEqual(deadLetters.length, 1);
+    assert.deepStrictEqual(deadLetters[0]?.value, 'fail');
   });
 });

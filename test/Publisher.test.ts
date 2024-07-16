@@ -1,10 +1,11 @@
-import { ObjectId } from 'mongodb';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { TestUtil } from './TestUtil';
 
-describe('A Publisher', () => {
-  const testUtil = new TestUtil(process.env);
+describe('Publisher', () => {
+  const testUtil = new TestUtil({ ...process.env, DB_NAME: 'Publisher' });
 
-  it('should be able to publish messages', async () => {
+  it('publishes messages', async () => {
     const publisher = testUtil.createPublisher();
 
     await publisher.publish({ type: 'numeric', value: 1 });
@@ -12,13 +13,13 @@ describe('A Publisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1 },
-      { _id: expect.any(ObjectId), type: 'text', value: 'hello' },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1 },
+      { type: 'text', value: 'hello' },
     ]);
   });
 
-  it('should publish messages with unique keys once', async () => {
+  it('publishes messages with unique keys once', async () => {
     await testUtil.collection.createIndex({ key: 1 }, { unique: true });
 
     const publisher = testUtil.createPublisher();
@@ -30,24 +31,25 @@ describe('A Publisher', () => {
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([
-      { _id: expect.any(ObjectId), type: 'numeric', value: 1, key: '1' },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 2, key: '2' },
-      { _id: expect.any(ObjectId), type: 'numeric', value: 3, key: '3' },
+    assert.deepStrictEqual(testUtil.omitId(messages), [
+      { type: 'numeric', value: 1, key: '1' },
+      { type: 'numeric', value: 2, key: '2' },
+      { type: 'numeric', value: 3, key: '3' },
     ]);
   });
 
-  it('should throw if trying to publish after being closed', async () => {
+  it('throws if trying to publish after being closed', async () => {
     const publisher = testUtil.createPublisher();
 
     publisher.close();
 
-    await expect(async () =>
-      publisher.publish({ type: 'numeric', value: 1 }),
-    ).rejects.toThrow('Publisher closed');
+    await assert.rejects(
+      async () => publisher.publish({ type: 'numeric', value: 1 }),
+      new Error('Publisher closed'),
+    );
 
     const messages = await testUtil.collection.find({}).toArray();
 
-    expect(messages).toEqual([]);
+    assert.deepStrictEqual(messages, []);
   });
 });

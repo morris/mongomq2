@@ -1,4 +1,6 @@
-import { Collection, Filter, MongoClient, WithId } from 'mongodb';
+import { Collection, Db, Filter, MongoClient, ObjectId, WithId } from 'mongodb';
+import assert from 'node:assert';
+import { after, afterEach, before, beforeEach } from 'node:test';
 import {
   BatchPublisher,
   BatchPublisherOptions,
@@ -30,6 +32,7 @@ export class TestFailure extends Error {}
 
 export class TestUtil {
   public readonly mongoClient: MongoClient;
+  public readonly db: Db;
   public readonly collection: Collection<TestMessage>;
   public readonly publishers: Publisher<TestMessage>[] = [];
   public readonly batchPublishers: BatchPublisher<TestMessage>[] = [];
@@ -44,17 +47,17 @@ export class TestUtil {
       { maxPoolSize: 100 },
     );
 
-    this.collection = this.mongoClient
-      .db(env.DB_NAME ?? undefined)
-      .collection(env.COLLECTION_NAME ?? 'messages');
+    this.db = this.mongoClient.db(env.DB_NAME ?? undefined);
 
-    beforeAll(async () => {
+    this.collection = this.db.collection(env.COLLECTION_NAME ?? 'messages');
+
+    before(async () => {
       await this.mongoClient.connect();
     });
 
     beforeEach(async () => {
-      for (const collection of await this.mongoClient.db().collections()) {
-        await this.mongoClient.db().dropCollection(collection.collectionName);
+      for (const collection of await this.db.collections()) {
+        await this.db.dropCollection(collection.collectionName);
       }
     });
 
@@ -70,21 +73,18 @@ export class TestUtil {
         await client.close();
       }
 
-      // invariants
-      try {
-        expect(this.emittedErrors).toEqual([]);
-        expect(this.deadLetters).toEqual([]);
-      } finally {
-        this.publishers.length = 0;
-        this.batchPublishers.length = 0;
-        this.subscribers.length = 0;
-        this.consumers.length = 0;
-        this.emittedErrors.length = 0;
-        this.deadLetters.length = 0;
-      }
+      this.publishers.length = 0;
+      this.batchPublishers.length = 0;
+      this.subscribers.length = 0;
+      this.consumers.length = 0;
+      this.emittedErrors.length = 0;
+      this.deadLetters.length = 0;
+
+      assert.deepStrictEqual(this.emittedErrors, []);
+      assert.deepStrictEqual(this.deadLetters, []);
     });
 
-    afterAll(async () => {
+    after(async () => {
       await this.mongoClient.close();
     });
   }
@@ -171,5 +171,14 @@ export class TestUtil {
 
   async wait(ms: number) {
     await new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  omitId<T extends { _id?: ObjectId }>(messages: T[]) {
+    return messages.map((message) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _id, ...rest } = message;
+
+      return rest;
+    });
   }
 }
