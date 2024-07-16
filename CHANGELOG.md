@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.2.2
 
 - Migrate tests to `node:test`
 - Update dependencies
