@@ -34,7 +34,7 @@
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "lint": "eslint .",
-    "test": "c8 --reporter text --reporter lcov node --loader tsx --test test/*.test.ts test/*/*.test.ts",
+    "test": "c8 --reporter text --reporter lcov node --import tsx --test test/*.test.ts test/*/*.test.ts",
     "build": "tsc --project tsconfig.build.json",
     "clean": "rm -rf coverage dist",
     "docs": "typedoc src/index.ts --excludeProtected --excludePrivate"
