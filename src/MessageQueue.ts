@@ -83,7 +83,7 @@ export class MessageQueue<
     const filter =
       globalFilter && localFilter
         ? { $and: [globalFilter, localFilter] }
-        : globalFilter ?? localFilter;
+        : (globalFilter ?? localFilter);
 
     const consumer = new Consumer(
       this.collection as unknown as Collection<TSpecificMessage>,
