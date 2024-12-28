@@ -27,7 +27,9 @@ jobs:
           CI: true
       - run: docker compose down
         if: always()
-      - run: npx codecov
+      - uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.node-version == '18.x' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
   publish:
     if: github.ref == 'refs/heads/main'
