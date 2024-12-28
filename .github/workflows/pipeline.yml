@@ -12,7 +12,7 @@ jobs:
         mongodb-package-version: ['4', '5', '6']
     steps:
       - uses: actions/checkout@v4
-      - run: MONGO_VERSION=${{ matrix.mongodb-version }} docker-compose up -d
+      - run: MONGO_VERSION=${{ matrix.mongodb-version }} docker compose up -d
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -25,7 +25,7 @@ jobs:
       - run: npm test
         env:
           CI: true
-      - run: docker-compose down
+      - run: docker compose down
         if: always()
       - run: npx codecov
         if: matrix.node-version == '18.x' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
