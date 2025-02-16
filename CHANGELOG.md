@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.2.3
 
 - Update dependencies
 
