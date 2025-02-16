@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['18.x', '20.x', '22.x']
+        node-version: ['18', '20', '22']
         mongodb-version: ['5', '6', '7']
         mongodb-package-version: ['4', '5', '6']
     steps:
@@ -30,7 +30,7 @@ jobs:
       - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.node-version == '18.x' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
+        if: matrix.node-version == '18' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
   publish:
     if: github.ref == 'refs/heads/main'
     needs: check
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '18'
           registry-url: https://registry.npmjs.org
       - run: npm install
       - run: npm run build
