@@ -10,12 +10,8 @@
     "sourceMap": true,
     "declaration": true,
 
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
     "strict": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
+    "noUnusedLocals": true,
 
     "noEmit": true
   }

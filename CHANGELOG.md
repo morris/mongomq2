@@ -1,5 +1,9 @@
 # Changelog
 
+## NEXT
+
+- Update dependencies
+
 ## 1.2.3
 
 - Update dependencies
