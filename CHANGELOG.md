@@ -2,6 +2,7 @@
 
 ## NEXT
 
+- Add MongoDB 8 to testing matrix
 - Update dependencies
 
 ## 1.2.3
