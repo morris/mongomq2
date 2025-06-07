@@ -402,4 +402,63 @@ describe('Consumer', () => {
     assert.deepStrictEqual(deadLetters.length, 1);
     assert.deepStrictEqual(deadLetters[0]?.value, 'fail');
   });
+
+  it('allows explicitly retrying with a specified visibility timeout (e.g. for exponential backoff)', async () => {
+    const group = 'testGroup';
+    const consumed: TestMessage[] = [];
+    let errors = 0;
+    const deadLetters: TestMessage[] = [];
+
+    const consumer = testUtil.createConsumer(
+      async (message, context) => {
+        try {
+          if (context.retries < 5) {
+            throw new TestFailure('try again');
+          }
+
+          consumed.push(message);
+        } catch {
+          await context.retry(
+            Math.min(Math.pow(2, context.retries + 1), 10), // 2, 4, 8, 10, 10, 10, ...
+          );
+        }
+      },
+      {
+        group,
+        maxRetries: 10,
+        pollMs: 10,
+        fastPollMs: 10,
+        visibilityTimeoutSeconds: 1,
+      },
+    );
+
+    consumer.on('error', () => ++errors);
+
+    consumer.on('deadLetter', (err, message) => {
+      deadLetters.push(message);
+    });
+
+    const publisher = testUtil.createPublisher();
+
+    const t0 = Date.now();
+
+    await publisher.publish({
+      type: 'text',
+      value: 'test',
+    });
+
+    await testUtil.waitUntil(() => consumed.length >= 1, 1000);
+
+    const t1 = Date.now();
+
+    assert.ok(t1 - t0 >= (2 + 4 + 8 + 10 + 10) * 1000, 'too fast');
+    assert.ok(t1 - t0 <= (2 + 4 + 8 + 10 + 10 + 10) * 1000, 'too slow');
+
+    assert.deepStrictEqual(
+      consumed.map((message) => message.value),
+      ['test'],
+    );
+
+    assert.strictEqual(errors, 0);
+  });
 });
