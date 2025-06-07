@@ -183,6 +183,53 @@ Useful for:
 - Event processing
 - Command processing
 
+#### Explicit Retries in Consumer Callbacks
+
+Consumer callbacks receive a context object containing
+
+- the number of retries for the received message so far, and
+- a function to retry consuming the message after a specified number of seconds.
+
+These can be used, for example, to implement
+[exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff):
+
+```ts
+messageQueue.consume(
+  (message, context) => {
+    try {
+      // handle message
+    } catch (err) {
+      await context.retry(
+        Math.min(Math.pow(2, context.retries + 1), 30), // 2, 4, 8, 16, 30, 30, 30, 30, ...
+      );
+
+      throw err;
+    }
+  },
+  { maxRetries: 10 },
+);
+```
+
+Calling `context.retry()` does not circumvent
+the configured maximum number of retries;
+it only prevents acknowledgement of the message (even if no error is thrown)
+and extends the visibility timeout (if specified). In the following example,
+retries are triggered without throwing errors:
+
+```ts
+messageQueue.consume(
+  (message, context) => {
+    if (isReady(message)) {
+      // handle message
+    } else {
+      // retry after globally configured visibility timeout
+      await context.retry();
+    }
+  },
+  { maxRetries: 10 },
+);
+```
+
 ### Subscriptions
 
 ```ts

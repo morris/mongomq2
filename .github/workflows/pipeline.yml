@@ -30,7 +30,7 @@ jobs:
       - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.node-version == '18' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
+        if: github.ref == 'refs/heads/main' && matrix.node-version == '18' && matrix.mongodb-version == '5' && matrix.mongodb-package-version == '4'
   publish:
     if: github.ref == 'refs/heads/main'
     needs: check

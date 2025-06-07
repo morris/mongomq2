@@ -71,7 +71,13 @@ export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
 
 export type ConsumerCallback<TMessage extends WithOptionalObjectId> = (
   message: WithId<TMessage>,
+  context: ConsumerCallbackContext,
 ) => void | Promise<void>;
+
+export interface ConsumerCallbackContext {
+  retries: number;
+  retry: (seconds?: number) => Promise<void>;
+}
 
 export interface ConsumerMetadata {
   _c?: Record<
@@ -155,6 +161,20 @@ export class Consumer<
   }
 
   /**
+   * Prevent the specified message ID from being consumed
+   * for the specified number of seconds (from now).
+   * Can be used for implementing e.g. exponentional backoff.
+   */
+  async hide(messageId: ObjectId, seconds: number) {
+    const until = Date.now() + seconds * 1000;
+
+    await this.collection.updateOne(
+      { _id: messageId } as Filter<TMessage>,
+      { $set: { [this.visibilityKey]: until } } as UpdateFilter<TMessage>,
+    );
+  }
+
+  /**
    * Waits until the consumer is drained,
    * i.e. it could not receive any consumable message.
    */
@@ -201,17 +221,38 @@ export class Consumer<
         const message = await this.receive();
 
         if (message) {
-          try {
-            await this.callback(message);
-            await this.ack(message);
+          const metadata = message as ConsumerMetadata;
+          const retries = metadata._c?.[this.group]?.r ?? 0;
 
-            // fast poll after successfully consumed message
-            this.nextTimeout.set(0, this.fastPollMs);
+          try {
+            let ack = true;
+
+            await this.callback(message, {
+              retries,
+              retry: async (seconds) => {
+                ack = false;
+
+                if (seconds && retries < this.maxRetries) {
+                  await this.hide(message._id as ObjectId, seconds);
+                }
+              },
+            });
+
+            if (ack) {
+              await this.ack(message);
+
+              // fast poll after acknowledged message
+              this.nextTimeout.set(0, this.fastPollMs);
+            } else if (retries >= this.maxRetries) {
+              this.emit(
+                'deadLetter',
+                new Error('Maximum number of retries exceeded'),
+                message,
+                this.group,
+              );
+            }
           } catch (err) {
             this.emit('error', err as Error, message as TMessage, this.group);
-
-            const metadata = message as ConsumerMetadata;
-            const retries = metadata._c?.[this.group]?.r ?? 0;
 
             if (retries >= this.maxRetries) {
               this.emit('deadLetter', err as Error, message, this.group);
@@ -262,7 +303,7 @@ export class Consumer<
             ],
           },
         ],
-      } as UpdateFilter<TMessage>,
+      } as Filter<TMessage>,
       {
         $set: {
           [this.visibilityKey]: now + this.visibilityTimeoutSeconds * 1000,
@@ -270,7 +311,7 @@ export class Consumer<
         $inc: {
           [this.retryKey]: 1,
         },
-      } as unknown as UpdateFilter<TMessage>,
+      } as UpdateFilter<TMessage>,
       { includeResultMetadata: true } as never, // mongodb@6 compat
     );
 
@@ -280,9 +321,7 @@ export class Consumer<
   protected async ack(message: WithId<TMessage>) {
     await this.collection.updateOne(
       { _id: message._id } as Filter<TMessage>,
-      {
-        $set: { [this.ackKey]: Date.now() },
-      } as unknown as UpdateFilter<TMessage>,
+      { $set: { [this.ackKey]: Date.now() } } as UpdateFilter<TMessage>,
     );
   }
 

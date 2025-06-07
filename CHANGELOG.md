@@ -2,6 +2,8 @@
 
 ## NEXT
 
+- Add `Consumer.hide` (see #1)
+- Add consumer callback context for explicit retry logic (see #1)
 - Add MongoDB 8 to testing matrix
 - Update dependencies
 
