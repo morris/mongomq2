@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.3.0
 
 - Add `Consumer.hide` (see #1)
 - Add consumer callback context for explicit retry logic (see #1)
