@@ -1,5 +1,9 @@
 # Changelog
 
+## NEXT
+
+- Update development dependencies
+
 ## 1.3.0
 
 - Add `Consumer.hide` (see #1)
