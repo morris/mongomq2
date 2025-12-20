@@ -63,8 +63,9 @@ export interface ConsumerOptions<TMessage extends WithOptionalObjectId> {
   fastPollMs?: number;
 }
 
-export interface ConsumerEvents<TMessage extends WithOptionalObjectId>
-  extends ErrorEvents<TMessage> {
+export interface ConsumerEvents<
+  TMessage extends WithOptionalObjectId,
+> extends ErrorEvents<TMessage> {
   deadLetter: (err: Error, message: WithId<TMessage>, group: string) => void;
   drained: (group: string) => void;
 }

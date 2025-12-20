@@ -2,7 +2,7 @@
 
 ## NEXT
 
-- Update development dependencies
+- Update dependencies
 
 ## 1.3.0
 

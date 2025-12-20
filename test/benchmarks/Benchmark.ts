@@ -6,8 +6,7 @@ export interface BenchmarkMessage {
   data: string;
 }
 
-export interface BenchmarkOptions
-  extends MessageQueueOptions<BenchmarkMessage> {
+export interface BenchmarkOptions extends MessageQueueOptions<BenchmarkMessage> {
   url: string;
   mongoClientOptions?: MongoClientOptions;
   messageSize: number;
@@ -34,7 +33,6 @@ export class Benchmark {
     for (
       let pastMessagesInserted = 0;
       pastMessagesInserted < this.options.numPastMessages;
-
     ) {
       const bulk = messageQueue.collection.initializeOrderedBulkOp();
       const bulkSize = Math.min(

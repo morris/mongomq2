@@ -17,13 +17,15 @@ import { TypedEventEmitter } from './TypedEventEmitter';
 import { WithOptionalObjectId } from './WithOptionalObjectId';
 
 export interface MessageQueueOptions<TMessage extends WithOptionalObjectId>
-  extends PublisherOptions,
+  extends
+    PublisherOptions,
     BatchPublisherOptions,
     SubscriberOptions<TMessage>,
     ConsumerOptions<TMessage> {}
 
 export interface MessageQueueEvents<TMessage extends WithOptionalObjectId>
-  extends BatchPublisherEvents<TMessage>,
+  extends
+    BatchPublisherEvents<TMessage>,
     SubscriberEvents<TMessage>,
     ConsumerEvents<TMessage> {}
 
