@@ -22,7 +22,7 @@ describe('BatchPublisher', () => {
   });
 
   it('publishes messages with unique keys once', async () => {
-    await testUtil.collection.drop();
+    await testUtil.collection.deleteMany({});
     await testUtil.collection.createIndex({ key: 1 }, { unique: true });
 
     const publisher = testUtil.createBatchPublisher({ batchDelayMs: 10 });
