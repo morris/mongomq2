@@ -2,6 +2,10 @@ name: Pipeline
 
 on: push
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -39,10 +43,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
           registry-url: https://registry.npmjs.org
       - run: npm install
       - run: npm run build
       - run: npm publish || echo "Already published"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
