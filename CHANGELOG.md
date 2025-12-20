@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.4.0
 
 - Support `mongodb@7`
 - Update to `mingo@7`
