@@ -1,9 +1,14 @@
 services:
   mongo:
-    image: mongo:${MONGO_VERSION:-5}
-    # Start a single-node replica set (required for change streams and transactions)
-    volumes:
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    command: mongod --replSet rs0
+    image: mongo:${MONGO_VERSION:-7}
+    command:
+      # Start a single-node replica set (required for change streams and transactions)
+      - /bin/bash
+      - -c
+      - |
+        mongod --bind_ip_all --replSet rs0 &
+        sleep 3
+        mongosh mongodb://localhost:27017 --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] });'
+        wait $$!
     ports:
       - '27017:27017'
