@@ -2,6 +2,8 @@
 
 ## NEXT
 
+- Support `mongodb@7`
+- Update to `mingo@7`
 - Update dependencies
 
 ## 1.3.0

@@ -1,7 +1,7 @@
 import { Query } from 'mingo';
-import { RawObject } from 'mingo/types';
+import type { AnyObject } from 'mingo/types/types';
 import { Document, Filter } from 'mongodb';
-import { ErrorEvents } from './ErrorEvents';
+import type { ErrorEvents } from './ErrorEvents';
 import { PromiseTracker } from './PromiseTracker';
 import { TypedEventEmitter } from './TypedEventEmitter';
 
@@ -48,7 +48,7 @@ export class Subscription<TMessage extends Document> extends TypedEventEmitter<
   async handle(message: TMessage) {
     if (this.closed) return;
 
-    if (this.mingoQuery && !this.mingoQuery.test(message as RawObject)) {
+    if (this.mingoQuery && !this.mingoQuery.test(message as AnyObject)) {
       return;
     }
 
