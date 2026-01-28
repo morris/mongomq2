@@ -3,6 +3,7 @@
 ## NEXT
 
 - Fix `fastPollMs` being ignored
+- Update dependencies
 
 ## 1.4.0
 
