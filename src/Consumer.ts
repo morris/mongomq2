@@ -133,7 +133,7 @@ export class Consumer<
     this.maxVisibilitySeconds = options.maxVisibilitySeconds ?? 60 * 60;
     this.maxRetries = options.maxRetries ?? 1;
     this.pollMs = options.pollMs ?? 1000;
-    this.fastPollMs = options.pollMs ?? 3;
+    this.fastPollMs = options.fastPollMs ?? 10;
 
     this.visibilityKey = `_c.${this.group}.v`;
     this.retryKey = `_c.${this.group}.r`;

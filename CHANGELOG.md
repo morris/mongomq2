@@ -1,5 +1,9 @@
 # Changelog
 
+## NEXT
+
+- Fix `fastPollMs` being ignored
+
 ## 1.4.0
 
 - Support `mongodb@7`
