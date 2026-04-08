@@ -461,4 +461,46 @@ describe('Consumer', () => {
 
     assert.strictEqual(errors, 0);
   });
+
+  it('does not drop messages in case of non-monotonic ID inserts', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const nowHex = now.toString(16).slice(-8);
+    const group = 'testGroup';
+    const messages: TextTestMessage[] = [
+      {
+        _id: ObjectId.createFromHexString(`${nowHex}0000000001ffffff`),
+        type: 'text',
+        value: 'M1',
+      },
+      {
+        _id: ObjectId.createFromHexString(`${nowHex}0000000000ffffff`),
+        type: 'text',
+        value: 'M0',
+      },
+    ];
+
+    const consumed: TextTestMessage[] = [];
+
+    const consumer = testUtil.createConsumer<TextTestMessage>(
+      (message) => {
+        consumed.push(message);
+      },
+      {
+        group,
+        visibilityTimeoutSeconds: 2,
+        maxVisibilitySeconds: 60,
+      },
+    );
+
+    await testUtil.collection.insertOne(messages[0]);
+    await consumer.seek();
+    await testUtil.waitUntilAcknowledged({ _id: messages[0]._id }, group);
+    await testUtil.collection.insertOne(messages[1]);
+    await testUtil.waitUntilAcknowledged({ _id: messages[1]._id }, group);
+
+    assert.deepStrictEqual(
+      consumed.map((message) => message.value),
+      ['M1', 'M0'],
+    );
+  });
 });

@@ -206,7 +206,7 @@ export class Consumer<
     await this.promises.all();
   }
 
-  protected async next() {
+  async next() {
     if (this.closed) return;
     if (this.pending >= this.concurrency) return;
 
@@ -326,7 +326,7 @@ export class Consumer<
     );
   }
 
-  protected async seek() {
+  async seek() {
     if (this.closed) return;
 
     try {
@@ -354,7 +354,9 @@ export class Consumer<
       );
 
       if (message) {
-        this.minId = message._id as ObjectId;
+        this.minId = ObjectId.createFromTime(
+          Math.floor((message._id as ObjectId).getTimestamp().getTime() / 1000),
+        );
       } else {
         this.minId = ObjectId.createFromTime(
           Math.floor(Date.now() / 1000) - this.visibilityTimeoutSeconds * 2,

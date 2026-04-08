@@ -2,6 +2,7 @@
 
 ## NEXT
 
+- Fix potential for dropped messages due to incorrect seeking
 - Fix `fastPollMs` being ignored
 - Update dependencies
 
