@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.4.1
 
 - Fix potential for dropped messages due to incorrect seeking
 - Fix `fastPollMs` being ignored
