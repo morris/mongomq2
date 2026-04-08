@@ -2,12 +2,10 @@ name: Pipeline
 
 on: push
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   check:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -36,6 +34,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         if: github.ref == 'refs/heads/main' && matrix.node-version == '24' && matrix.mongodb-version == '8' && matrix.mongodb-package-version == '7'
   publish:
+    permissions:
+      id-token: write
+      contents: read
     if: github.ref == 'refs/heads/main'
     needs: check
     runs-on: ubuntu-latest
