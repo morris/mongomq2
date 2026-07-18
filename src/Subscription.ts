@@ -1,5 +1,5 @@
 import { Query } from 'mingo';
-import type { AnyObject } from 'mingo/types/types';
+import type { AnyObject } from 'mingo/types';
 import { Document, Filter } from 'mongodb';
 import type { ErrorEvents } from './ErrorEvents';
 import { PromiseTracker } from './PromiseTracker';
