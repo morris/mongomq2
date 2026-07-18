@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 1.4.2
 
 - Update dependencies
 
